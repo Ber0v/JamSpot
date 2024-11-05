@@ -6,7 +6,8 @@ namespace JamSpotApp.Models
     {
         public Guid Id { get; set; }
 
-        public byte[]? ProfileImage { get; set; }
+        public string? Image { get; set; }
+
         public required string Title { get; set; }
 
         [Required]

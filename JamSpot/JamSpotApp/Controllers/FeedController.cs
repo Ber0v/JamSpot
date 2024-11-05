@@ -24,7 +24,7 @@ namespace ArtJamWebApp.Controllers
                     Id = p.Id,
                     Title = p.Title,
                     Content = p.Content,
-                    ProfileImage = p.ProfileImage,
+                    Image = p.User != null ? p.User.ProfilePicture : p.Group.Logo,
                     Publisher = p.User != null ? p.User.UserName : p.Group.GroupName,
                     CreatedDate = p.CreatedDate.ToString("yyyy-MM-dd"),
                 })
@@ -42,12 +42,12 @@ namespace ArtJamWebApp.Controllers
         }
 
         // POST: /Feed/CreatePost - Handle form submission for musician search posts
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreatePost()
-        {
-            return RedirectToAction("All");
-        }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> CreatePost()
+        //{
+        //    return RedirectToAction("All");
+        //}
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)

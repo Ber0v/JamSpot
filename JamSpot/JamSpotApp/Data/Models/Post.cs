@@ -5,7 +5,6 @@
         public Guid Id { get; set; } = Guid.NewGuid();
         public required string Title { get; set; }
         public required string Content { get; set; }
-        public byte[]? ProfileImage { get; set; }
         public DateTime CreatedDate { get; set; }
 
         public Guid? UserId { get; set; }
