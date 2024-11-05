@@ -15,15 +15,7 @@
             background-color: #2b2b2b; /* Фон */
             color: #ffffff;
         }
-        .content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            padding: 20px;
-        }
-
+        
         .register-container {
             background-color: #3c3c3c;
             padding: 30px;
@@ -31,11 +23,6 @@
             width: 100%;
             max-width: 400px;
             text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
         }
 
         .form-control {
@@ -68,41 +55,14 @@
             left: -9999px;
             visibility: hidden;
         }
-
-        .btn-register {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background: linear-gradient(90deg, #3ae374, #17c0eb);
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            float: right;
-        }
-
-            .btn-register:hover {
-                opacity: 0.9;
-                background: linear-gradient(90deg, #17c0eb, #3ae374);
-            }
-
-        .terms-link {
-            color: #4ac7ff;
-            text-decoration: none;
-        }
-
-        .instrument-group-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
     </style>
 </head>
 <body>
-    <div class="content">
-        <div class="register-container">
+    <div class="m-5 pb-5">
+        <div class="register-container col-md-6">
             <h2>Create an Account</h2>
-            <form method="post" enctype="multipart/form-data">
-                <div class="form-group">
+            <form method="post" enctype="multipart/form-data" action="/action_page.php">
+                <div class="align-content-center">
                     <!-- Контейнер за профилната снимка -->
                     <div class="profile-picture-container">
                         <img id="profileImage"
@@ -118,47 +78,44 @@
                                onchange="previewImage(event)" />
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3 mt-3">
                         <label asp-for="UserName">Username</label>
                         <input asp-for="UserName" class="form-control" />
                         <span asp-validation-for="UserName" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3 mt-3">
                         <label asp-for="Email">Email</label>
                         <input asp-for="Email" class="form-control" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3 mt-3">
                         <label asp-for="Password">Password</label>
                         <input asp-for="Password" class="form-control" type="password" />
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3 mt-3">
                         <label asp-for="ConfirmPassword">Confirm Password</label>
                         <input asp-for="ConfirmPassword" class="form-control" type="password" />
                         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                     </div>
-
-                    <input type="hidden" asp-for="IsMusician" />
-                    <input type="hidden" asp-for="Instrument" />
-
-                    <div class="instrument-group-container">
-                        <div class="btn-group" id="instrument-group">
+                    <div>
+                        <div class="btn-group float-start" id="instrument-group">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Are you a musician?</button>
                             <div class="dropdown-menu" style="position: absolute;">
                                 <a class="dropdown-item" href="#" data-instrument="None">No</a>
                                 <a class="dropdown-item" href="#" data-instrument="Guitar">Guitar</a>
-                                <a class="dropdown-item" href="#" data-instrument="Piano">Piano</a>
+                                <a class="dropdown-item" href="#" data-instrument="Piano/Keys">Piano/Keys</a>
                                 <a class="dropdown-item" href="#" data-instrument="Drums">Drums</a>
-                                <a class="dropdown-item" href="#" data-instrument="Bass Guitar">Bass Guitar</a>
+                                <a class="dropdown-item" href="#" data-instrument="Bass">Bass</a>
+                                <a class="dropdown-item" href="#" data-instrument="Vocal">Vocal</a>
                                 <a class="dropdown-item" href="#" data-instrument="Other">Other</a>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-register">Register</button>
+                        <button type="submit" class="btn btn-primary float-end">Register</button>
                     </div>
             </form>
         </div>
