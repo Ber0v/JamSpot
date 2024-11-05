@@ -13,7 +13,7 @@ namespace ArtJamWebApp.Controllers
         }
 
         // GET: /Feed/Index - Display all posts (Records, Events, MusicianSearch posts)
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> All()
         {
             return View();
         }
@@ -29,7 +29,19 @@ namespace ArtJamWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreatePost()
         {
-            return RedirectToAction("Index");
+            return RedirectToAction("All");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit()
+        {
+            return RedirectToAction(nameof(All));
         }
     }
 }
