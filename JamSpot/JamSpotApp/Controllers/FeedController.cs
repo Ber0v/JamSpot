@@ -1,24 +1,41 @@
 ﻿using JamSpotApp.Data;
+using JamSpotApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ArtJamWebApp.Controllers
 {
     public class FeedController : Controller
     {
-        private readonly JamSpotDbContext _context;
+        private readonly JamSpotDbContext context;
 
-        public FeedController(JamSpotDbContext context)
+        public FeedController(JamSpotDbContext _context)
         {
-            _context = context;
+            context = _context;
         }
 
-        // GET: /Feed/Index - Display all posts (Records, Events, MusicianSearch posts)
+        // GET: /Feed/Index - Display all posts (MusicianSearch posts)
+        [HttpGet]
         public async Task<IActionResult> All()
         {
-            return View();
+            var model = await context.Posts
+                .Select(p => new FeedViewModel()
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    Content = p.Content,
+                    ProfileImage = p.ProfileImage,
+                    Publisher = p.User != null ? p.User.UserName : p.Group.GroupName,
+                    CreatedDate = p.CreatedDate.ToString("yyyy-MM-dd"),
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
+            return View(model);
         }
 
         // GET: /Feed/CreatePost - Display form for creating a musician search post
+        [HttpGet]
         public IActionResult CreatePost()
         {
             return View();
