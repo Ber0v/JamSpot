@@ -1,4 +1,5 @@
 ﻿using JamSpotApp.Data;
+using JamSpotApp.Data.Models;
 using JamSpotApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -38,16 +39,32 @@ namespace ArtJamWebApp.Controllers
         [HttpGet]
         public IActionResult CreatePost()
         {
-            return View();
+            var model = new CreatePostViewModel();
+            return View(model);
         }
 
         // POST: /Feed/CreatePost - Handle form submission for musician search posts
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> CreatePost()
-        //{
-        //    return RedirectToAction("All");
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreatePost(CreatePostViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var post = new Post
+                {
+                    Title = model.Title,
+                    Content = model.Content,
+                    CreatedDate = model.CreatedDate
+                };
+
+                context.Posts.Add(post);
+                await context.SaveChangesAsync();
+
+                return RedirectToAction("All");
+            }
+
+            return View(model);
+        }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
