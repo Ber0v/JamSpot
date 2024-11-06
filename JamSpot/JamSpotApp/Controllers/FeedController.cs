@@ -2,7 +2,6 @@
 using JamSpotApp.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace ArtJamWebApp.Controllers
 {
@@ -121,10 +120,37 @@ namespace ArtJamWebApp.Controllers
             return RedirectToAction(nameof(All));
         }
 
-
-        private string? GetCurrentUserId()
+        [HttpGet]
+        public async Task<IActionResult> Delete(Guid id)
         {
-            return User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var model = await context.Posts
+                .Where(p => p.Id == id)
+                .AsNoTracking()
+                .Select(p => new DelateViewModel()
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    Publisher = p.User != null ? p.User.UserName : (p.Group != null ? p.Group.GroupName : null)
+                })
+                .FirstOrDefaultAsync();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteConfirmed(DelateViewModel model)
+        {
+            var post = await context.Posts.FindAsync(model.Id);
+
+            if (post == null)
+            {
+                return NotFound();
+            }
+
+            context.Posts.Remove(post);
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(All));
         }
     }
 }
