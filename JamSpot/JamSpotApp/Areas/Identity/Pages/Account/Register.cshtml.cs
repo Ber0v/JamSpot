@@ -64,6 +64,17 @@ namespace ArtJamWebApp.Areas.Identity.Pages.Account
 
             var result = await _userManager.CreateAsync(user, Password);
 
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    // Логирайте грешките
+                    Console.WriteLine($"Error Code: {error.Code}, Description: {error.Description}");
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return Page();
+            }
+
             if (result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, isPersistent: false);

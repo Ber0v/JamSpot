@@ -9,8 +9,6 @@ namespace JamSpotApp.Data.Models
             this.Id = Guid.NewGuid();
         }
 
-        public required string UserName { get; set; }
-
         public required string ProfilePicture { get; set; }
         public string? UserBio { get; set; }
         public string? Instrument { get; set; }
