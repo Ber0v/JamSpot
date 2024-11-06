@@ -1,4 +1,5 @@
-﻿@model IEnumerable<FeedViewModel>
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<FeedViewModel>
 @{
     ViewBag.Title = "Display all posts";
 }
@@ -9,7 +10,7 @@
 <div class="text-center row">
     @foreach (var e in Model)
     {
-        <div class="card col-3 h-100" style="width: 20rem;">
+        <div class="card custom-navbar" style="width: 20rem;">
             @if (!string.IsNullOrEmpty(e.Image))
             {
                 <img src="@e.Image" class="card-img-top img-fluid" style="height: 200px; object-fit: cover;" alt="Image">

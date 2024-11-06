@@ -5,7 +5,7 @@ namespace JamSpotApp.Models
     public class CreatePostViewModel
     {
         [Required]
-        [StringLength(10), MinLength(2)]
+        [StringLength(50), MinLength(1)]
         public string Title { get; set; } = string.Empty;
 
         [Required]
