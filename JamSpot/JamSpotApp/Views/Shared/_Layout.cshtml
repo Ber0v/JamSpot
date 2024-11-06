@@ -40,22 +40,20 @@
                                 <span class="visually-hidden">(current)</span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Feed" asp-action="All">Feed</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Feed" asp-action="CreatePost">CreatePost</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">hi</a>
-                            <ul class="dropdown-menu custom-navbar dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="#">Action</a></li>
-                                <li><a class="dropdown-item" href="#">Another action</a></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Separated link</a></li>
-                            </ul>
-                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Home" asp-action="#">Disable</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">Feed</a>
+                                <ul class="dropdown-menu custom-navbar dropdown-menu-dark">
+                                    <li><a class="dropdown-item" href="All">All</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="CreatePost">Create Post</a></li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <partial name="_LoginPartial" />
