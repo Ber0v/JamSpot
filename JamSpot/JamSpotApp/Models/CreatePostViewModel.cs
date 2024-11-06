@@ -4,6 +4,8 @@ namespace JamSpotApp.Models
 {
     public class CreatePostViewModel
     {
+        public Guid Id { get; internal set; }
+
         [Required]
         [StringLength(50), MinLength(1)]
         public string Title { get; set; } = string.Empty;

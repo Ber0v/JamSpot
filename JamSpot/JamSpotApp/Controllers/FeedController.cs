@@ -1,12 +1,13 @@
 ﻿using JamSpotApp.Data;
 using JamSpotApp.Data.Models;
-using JamSpotApp.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace ArtJamWebApp.Controllers
 {
+    using JamSpotApp.Models;
+    using Microsoft.AspNetCore.Identity;
     public class FeedController : Controller
     {
         private readonly JamSpotDbContext context;
@@ -74,16 +75,56 @@ namespace ArtJamWebApp.Controllers
             return View(model);
         }
 
+        // Get: Feed/Edit
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            return View();
+            var model = await context.Posts
+                .Where(p => p.Id == id)
+                .Include(p => p.User)
+                .AsNoTracking()
+                .Select(p => new CreatePostViewModel()
+                {
+                    Title = p.Title,
+                    Content = p.Content,
+                })
+                .FirstOrDefaultAsync();
+
+            if (model == null)
+            {
+                return NotFound();
+            }
+
+            return View(model);
         }
 
+        // POST: Feed/Edit
         [HttpPost]
-        public async Task<IActionResult> Edit()
+        public async Task<IActionResult> Edit(CreatePostViewModel model, Guid Id)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            Post? entity = await context.Posts.FindAsync(Id);
+
+            if (entity == null)
+            {
+                return NotFound();
+            }
+
+            entity.Title = model.Title;
+            entity.Content = model.Content;
+
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(All));
+        }
+
+
+        private string? GetCurrentUserId()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
     }
 }
