@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JamSpotApp.Controllers
 {
-    using JamSpotApp.Models.Group;
+    using JamSpotApp.Models;
     using Microsoft.AspNetCore.Identity;
     public class GroupController : Controller
     {

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArtJamWebApp.Controllers
 {
-    using JamSpotApp.Models.Feed;
+    using JamSpotApp.Models;
     using Microsoft.AspNetCore.Identity;
     public class FeedController : Controller
     {

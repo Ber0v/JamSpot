@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JamSpotApp.Migrations
 {
     [DbContext(typeof(JamSpotDbContext))]
-    [Migration("20241104182744_Initial")]
+    [Migration("20241107140242_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -129,6 +129,9 @@ namespace JamSpotApp.Migrations
                     b.Property<Guid>("CreatorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Genre")
                         .HasColumnType("nvarchar(max)");
 
@@ -136,10 +139,12 @@ namespace JamSpotApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte[]>("ProfileImage")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("Logo")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
 
                     b.ToTable("Groups");
                 });
@@ -160,8 +165,9 @@ namespace JamSpotApp.Migrations
                     b.Property<Guid?>("GroupId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("PostType")
-                        .HasColumnType("int");
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -281,7 +287,6 @@ namespace JamSpotApp.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("UserName")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -489,6 +494,17 @@ namespace JamSpotApp.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("JamSpotApp.Data.Models.Group", b =>
+                {
+                    b.HasOne("JamSpotApp.Data.Models.User", "Creator")
+                        .WithMany("Groups")
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+                });
+
             modelBuilder.Entity("JamSpotApp.Data.Models.Post", b =>
                 {
                     b.HasOne("JamSpotApp.Data.Models.Group", "Group")
@@ -609,6 +625,8 @@ namespace JamSpotApp.Migrations
             modelBuilder.Entity("JamSpotApp.Data.Models.User", b =>
                 {
                     b.Navigation("FollowingUsers");
+
+                    b.Navigation("Groups");
 
                     b.Navigation("Posts");
 

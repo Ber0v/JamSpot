@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace JamSpotApp.Models.Feed
+namespace JamSpotApp.Models
 {
     public class FeedViewModel
     {

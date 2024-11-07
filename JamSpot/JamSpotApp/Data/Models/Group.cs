@@ -12,9 +12,10 @@ namespace JamSpotApp.Data.Models
         public string? Description { get; set; }
 
         public ICollection<User> Members { get; set; } = new HashSet<User>();
+        public string? Genre { get; set; }
+
         public Guid CreatorId { get; set; }
         public required User Creator { get; set; }
-        public string? Genre { get; set; }
 
         public ICollection<Post> Posts { get; set; } = new HashSet<Post>();
         public ICollection<Event> Events { get; set; } = new HashSet<Event>();

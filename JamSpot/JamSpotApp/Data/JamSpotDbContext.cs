@@ -36,6 +36,12 @@ namespace JamSpotApp.Data
                 .WithMany(g => g.Events)
                 .HasForeignKey(e => e.OrganizerId);
 
+            builder.Entity<Group>()
+                .HasOne(g => g.Creator)
+                .WithMany(g => g.Groups)
+                .HasForeignKey(g => g.CreatorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Configure Song relationships
             SongMethod(builder);
         }
