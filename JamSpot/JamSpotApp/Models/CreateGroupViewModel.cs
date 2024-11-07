@@ -19,5 +19,7 @@ namespace JamSpotApp.Models
         [Required]
         [StringLength(20), MinLength(2)]
         public string? Genre { get; set; }
+
+        public string? ExistingLogoPath { get; set; }
     }
 }

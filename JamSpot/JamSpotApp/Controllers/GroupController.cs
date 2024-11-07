@@ -102,6 +102,73 @@ namespace JamSpotApp.Controllers
             return View(model);
         }
 
+        // GET: /Group/Edit/{id} - Извежда форма за редактиране на съществуваща група
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var group = await context.Groups
+                .Where(g => g.Id == id)
+                .Include(g => g.Creator)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            var model = new CreateGroupViewModel()
+            {
+                GroupName = group.GroupName,
+                Description = group.Description,
+                Genre = group.Genre,
+                ExistingLogoPath = group.Logo
+            };
+
+            return View(model);
+        }
+
+        // POST: /Group/Edit/{id} - Обработва редакцията на групата
+        [HttpPost]
+        public async Task<IActionResult> Edit(Guid id, CreateGroupViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var group = await context.Groups.FindAsync(id);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            group.GroupName = model.GroupName;
+            group.Description = model.Description;
+            group.Genre = model.Genre;
+
+            // Проверка дали има качено ново лого
+            if (model.Logo != null)
+            {
+                // Изтриваме старото лого от файловата система, ако съществува
+                if (!string.IsNullOrEmpty(group.Logo) && group.Logo != DefaultLogo())
+                {
+                    var oldLogoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", group.Logo.TrimStart('/'));
+                    if (System.IO.File.Exists(oldLogoPath))
+                    {
+                        System.IO.File.Delete(oldLogoPath);
+                    }
+                }
+
+                // Качваме новото лого и го записваме
+                group.Logo = UploadLogo(model.Logo);
+            }
+
+            await context.SaveChangesAsync();
+            return RedirectToAction(nameof(All));
+        }
+
         private string UploadLogo(IFormFile file)
         {
             if (file == null || file.Length == 0)
