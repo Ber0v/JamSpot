@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@using using Microsoft.AspNetCore.Identity
 @model IEnumerable<FeedViewModel>
 @{
     ViewBag.Title = "Display all posts";
@@ -41,6 +41,8 @@
             <div class="row gx-0">
                 @if (User?.Identity?.Name == e.Publisher)
                 {
+                    <a asp-controller="Feed" asp-action="Delete" asp-route-id="@e.Id" class="btn btn-danger btn-rounded mb-2 w-100 p-3 fw-bold">Delete</a>
+
                     <div class="col-6 px-1">
                         <a asp-controller="Feed" asp-action="Edit" asp-route-id="@e.Id" class="btn btn-warning btn-sm mb-2 w-100 fw-bold rounded btn-dark-text">Edit</a>
                     </div>

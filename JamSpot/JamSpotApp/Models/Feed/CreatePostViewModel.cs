@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace JamSpotApp.Models
+namespace JamSpotApp.Models.Feed
 {
     public class CreatePostViewModel
     {
