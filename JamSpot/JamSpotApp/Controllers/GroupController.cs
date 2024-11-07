@@ -70,6 +70,38 @@ namespace JamSpotApp.Controllers
             return View(model);
         }
 
+        // GET: /Group/MyGroup - Показва групата на текущия потребител
+        [HttpGet]
+        public async Task<IActionResult> MyGroup()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var group = await context.Groups
+                .Include(g => g.Creator)
+                .FirstOrDefaultAsync(g => g.Creator.Id == user.Id);
+
+            if (group == null)
+            {
+                // Потребителят няма създадена група
+                return RedirectToAction("CreateGroup");
+            }
+
+            var isOwner = group.Creator.Id == user.Id;
+
+            var model = new GroupDetailsViewModel
+            {
+                Id = group.Id,
+                GroupName = group.GroupName,
+                Logo = group.Logo,
+                Description = group.Description,
+                Genre = group.Genre,
+                Creator = group.Creator.UserName,
+                IsOwner = isOwner,
+            };
+
+            return View(model);
+        }
+
         private string UploadLogo(IFormFile file)
         {
             if (file == null || file.Length == 0)

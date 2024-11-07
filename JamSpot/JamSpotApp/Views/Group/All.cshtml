@@ -1,0 +1,20 @@
+﻿@model IEnumerable<JamSpotApp.Models.GroupViewModel>
+
+<div class="container mt-4">
+    <h2>All Groups</h2>
+    <div class="row">
+        @foreach (var group in Model)
+        {
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    <img src="@group.Logo" class="card-img-top" alt="Group Logo" />
+                    <div class="card-body">
+                        <h5 class="card-title">@group.GroupName</h5>
+                        <p class="card-text">Genre: @group.Genre</p>
+                        <a asp-action="MyGroup" asp-route-id="@group.Id" class="btn btn-primary">View Group</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
