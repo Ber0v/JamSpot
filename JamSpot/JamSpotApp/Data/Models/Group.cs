@@ -8,7 +8,7 @@ namespace JamSpotApp.Data.Models
 
         [Required]
         public required string GroupName { get; set; }
-        public string? Logo { get; set; }
+        public required string Logo { get; set; }
         public string? Description { get; set; }
 
         public ICollection<User> Members { get; set; } = new HashSet<User>();
