@@ -24,7 +24,7 @@ namespace JamSpotApp.Controllers
             {
                 Id = user.Id,
                 ProfilePicture = user.ProfilePicture,
-                UserName = user.ProfilePicture,
+                UserName = user.UserName,
                 UserBio = user.UserBio,
                 Instrument = user.Instrument
             };
