@@ -1,0 +1,11 @@
+﻿@using JamSpotApp.Models.User
+@model UserViewModel
+
+<div class="group-details">
+    <img src="@Model.ProfilePicture" alt="Profile Picture" class="Profile-Picture" />
+    <h2>@Model.UserName</h2>
+    <p>Genre: @Model.Instrument</p>
+    <p>Description: @Model.UserBio</p>
+
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit Profile</a>
+</div>

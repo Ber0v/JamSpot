@@ -22,7 +22,7 @@
                 <img src="@profilePictureUrl" style="width:30px;" class="rounded-circle" />
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                <li><a href="#" class="dropdown-item">My profile</a></li>
+                <li><a asp-controller="User" asp-action="All" class="dropdown-item">My profile</a></li>
                 <li><a href="#" class="dropdown-item">Settings</a></li>
                 <li>
                     <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" method="post" style="display:inline;">
