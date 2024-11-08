@@ -1,4 +1,4 @@
-﻿namespace JamSpotApp.Models
+﻿namespace JamSpotApp.Models.Group
 {
     public class GroupDetailsViewModel
     {
@@ -9,7 +9,5 @@
         public string? Genre { get; set; }
         public required string Creator { get; set; }
         public bool IsOwner { get; set; }
-
-        public List<MusicianViewModel> Members { get; set; } = new List<MusicianViewModel>();
     }
 }

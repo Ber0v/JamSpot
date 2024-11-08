@@ -1,4 +1,4 @@
-﻿namespace JamSpotApp.Models
+﻿namespace JamSpotApp.Models.feed
 {
     public class DelateViewModel
     {

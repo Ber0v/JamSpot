@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JamSpotApp.Controllers
 {
-    using JamSpotApp.Models;
+    using JamSpotApp.Models.Group;
     using Microsoft.AspNetCore.Identity;
     public class GroupController : Controller
     {
@@ -168,74 +168,6 @@ namespace JamSpotApp.Controllers
             await context.SaveChangesAsync();
             return RedirectToAction(nameof(All));
         }
-
-        // GET: /Group/AddMusician/{groupId} - Показва списък с музиканти, които могат да бъдат добавени
-        [HttpGet]
-        public async Task<IActionResult> AddMusician(Guid groupId, string search = "")
-        {
-            var group = await context.Groups
-        .Include(g => g.Members)
-        .FirstOrDefaultAsync(g => g.Id == groupId);
-
-            if (group == null || group.CreatorId != Guid.Parse(_userManager.GetUserId(User)))
-            {
-                return Unauthorized();
-            }
-
-            // Филтриране на потребителите по търсене
-            var usersQuery = context.Users.AsQueryable();
-
-            if (!string.IsNullOrEmpty(search))
-            {
-                usersQuery = usersQuery.Where(u => u.UserName.Contains(search) || (u.Instrument != null && u.Instrument.Contains(search)));
-            }
-
-            // Списък с потребители, които не са в групата
-            var users = await usersQuery
-                .Where(u => !group.Members.Contains(u))
-                .Select(u => new UserViewModel
-                {
-                    Id = u.Id,
-                    UserName = u.UserName,
-                    Instrument = u.Instrument
-                })
-                .ToListAsync();
-
-            var model = new AddMusicianViewModel
-            {
-                GroupId = groupId,
-                Users = users,
-                SearchQuery = search
-            };
-
-            return View(model);
-        }
-
-        // POST: /Group/AddMusician - Добавя музикант към групата
-        [HttpPost]
-        public async Task<IActionResult> AddMusician(Guid groupId, Guid userId)
-        {
-            var group = await context.Groups
-        .Include(g => g.Members)
-        .FirstOrDefaultAsync(g => g.Id == groupId);
-
-            if (group == null || group.CreatorId != Guid.Parse(_userManager.GetUserId(User)))
-            {
-                return Unauthorized();
-            }
-
-            var user = await context.Users.FindAsync(userId);
-            if (user == null || group.Members.Contains(user))
-            {
-                return NotFound();
-            }
-
-            group.Members.Add(user);
-            await context.SaveChangesAsync();
-
-            return RedirectToAction("MyGroup", new { id = groupId });
-        }
-
 
         private string UploadLogo(IFormFile file)
         {
