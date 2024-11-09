@@ -1,0 +1,33 @@
+﻿@model IEnumerable<JamSpotApp.Models.Event.EventViewModel>
+
+@{
+    ViewData["Title"] = "All Events";
+}
+
+<h2 class="mt-4">All Events</h2>
+
+<a asp-action="CreateEvent" class="btn btn-primary mb-3">Create New Event</a>
+
+<table class="table table-striped table-dark">
+    <thead>
+        <tr>
+            <th>Event Name</th>
+            <th>Description</th>
+            <th>Organizer</th>
+            <th>Location</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var eventItem in Model)
+        {
+            <tr>
+                <td>@eventItem.EventName</td>
+                <td>@eventItem.EventDescription</td>
+                <td>@eventItem.Organizer</td>
+                <td>@eventItem.Location</td>
+                <td>@eventItem.Date</td>
+            </tr>
+        }
+    </tbody>
+</table>
