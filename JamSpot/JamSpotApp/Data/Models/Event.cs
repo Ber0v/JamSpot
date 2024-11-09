@@ -4,6 +4,7 @@
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public required string EventName { get; set; }
+        public required string EventDescription { get; set; }
         public required string Location { get; set; }
         public DateTime Date { get; set; }
 
