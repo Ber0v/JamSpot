@@ -18,7 +18,6 @@ namespace JamSpotApp.Data.Models
         public required User Creator { get; set; }
 
         public ICollection<Post> Posts { get; set; } = new HashSet<Post>();
-        public ICollection<Event> Events { get; set; } = new HashSet<Event>();
         public ICollection<Song> Songs { get; set; } = new HashSet<Song>();
     }
 }

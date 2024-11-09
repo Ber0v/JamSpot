@@ -19,5 +19,6 @@ namespace JamSpotApp.Data.Models
         public ICollection<Post> Posts { get; set; } = new HashSet<Post>();
         public ICollection<Group> Groups { get; set; } = new HashSet<Group>();
         public ICollection<Song> Songs { get; set; } = new HashSet<Song>();
+        public ICollection<Event> Events { get; set; } = new HashSet<Event>();
     }
 }

@@ -9,7 +9,7 @@
         public DateTime Date { get; set; }
 
         public Guid OrganizerId { get; set; }
-        public required Group Organizer { get; set; }
+        public required User Organizer { get; set; }
 
         public ICollection<User> Participants { get; set; } = new HashSet<User>();
     }
