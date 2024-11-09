@@ -7,6 +7,7 @@ namespace JamSpotApp.Controllers
     using JamSpotApp.Models.Event;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
+    using System.Globalization;
 
     public class EventController : Controller
     {
@@ -21,17 +22,59 @@ namespace JamSpotApp.Controllers
         public async Task<IActionResult> All()
         {
             var model = await context.Events
-                .Include(p => p.Organizer)
-                .Select(p => new EventViewModel()
+                .Include(e => e.Organizer)
+                .Select(e => new EventViewModel()
                 {
-                    EventName = p.EventName,
-                    EventDescription = p.EventDescription,
-                    Organizer = p.Organizer.GroupName,
-                    Location = p.Location,
-                    Date = p.Date.ToString("dd-MM-yy"),
+                    EventName = e.EventName,
+                    EventDescription = e.EventDescription,
+                    Organizer = e.Organizer.UserName,
+                    Location = e.Location,
+                    Date = e.Date.ToString("dd-MM-yy"),
                 })
                 .AsNoTracking()
                 .ToListAsync();
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult CreateEvent()
+        {
+            var model = new CreateEventViewModel();
+            return View(model);
+        }
+
+        // POST: /Event/CreateEvent 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateEvent(CreateEventViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                DateTime Date;
+
+                if (DateTime.TryParseExact(model.Date, "dd-MM-yy", CultureInfo.CurrentCulture, DateTimeStyles.None, out Date) == false)
+                {
+                    ModelState.AddModelError(nameof(model.Date), "Invalid date format");
+
+                    return View(model);
+                }
+
+                var events = new Event
+                {
+                    EventName = model.EventName,
+                    EventDescription = model.EventDescription,
+                    Location = model.Location,
+                    Date = Date,
+                    Organizer = user
+                };
+
+                context.Events.Add(events);
+                await context.SaveChangesAsync();
+
+                return RedirectToAction("All");
+            }
 
             return View(model);
         }
