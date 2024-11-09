@@ -70,34 +70,23 @@ namespace JamSpotApp.Controllers
             return View(model);
         }
 
-        // GET: /Group/MyGroup - Показва групата на текущия потребител
+        // GET: /Group/Details - Показва групата на текущия потребител
         [HttpGet]
-        public async Task<IActionResult> MyGroup()
+        public async Task<IActionResult> Details(Guid id)
         {
-            var user = await _userManager.GetUserAsync(User);
-
-            var group = await context.Groups
-                .Include(g => g.Creator)
-                .FirstOrDefaultAsync(g => g.Creator.Id == user.Id);
-
-            if (group == null)
-            {
-                // Потребителят няма създадена група
-                return RedirectToAction("CreateGroup");
-            }
-
-            var isOwner = group.Creator.Id == user.Id;
-
-            var model = new GroupDetailsViewModel
-            {
-                Id = group.Id,
-                GroupName = group.GroupName,
-                Logo = group.Logo,
-                Description = group.Description,
-                Genre = group.Genre,
-                Creator = group.Creator.UserName,
-                IsOwner = isOwner,
-            };
+            var model = await context.Groups
+                .Where(g => g.Id == id)
+                .AsNoTracking()
+                .Select(g => new GroupDetailsViewModel()
+                {
+                    Id = g.Id,
+                    GroupName = g.GroupName,
+                    Logo = g.Logo,
+                    Description = g.Description,
+                    Genre = g.Genre,
+                    Creator = g.Creator.UserName,
+                })
+                .FirstOrDefaultAsync();
 
             return View(model);
         }

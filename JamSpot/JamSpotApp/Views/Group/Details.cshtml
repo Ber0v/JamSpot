@@ -18,11 +18,13 @@
             <!-- Instrument -->
             <p><strong>Instrument:</strong>@Model.Genre</p>
 
-            <!-- Follow Counts and Edit Button -->
-            <div class="d-flex justify-content-center align-items-center mt-3">
-                <button class="btn btn-outline-light ms-4">Edit Profile</button>
-            </div>
-
+            @if (User?.Identity?.Name == Model.Creator)
+            {
+                <!-- Edit Button -->
+                <div class="d-flex justify-content-center align-items-center mt-3">
+                    <a asp-controller="Group" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-light ms-4">Edit Group</a>
+                </div>
+            }
             <!-- Tabs for Posts, Saved, and Tagged -->
             <ul class="nav nav-tabs mt-4 justify-content-center border-bottom border-secondary">
             </ul>

@@ -8,6 +8,5 @@
         public required string Description { get; set; }
         public string? Genre { get; set; }
         public required string Creator { get; set; }
-        public bool IsOwner { get; set; }
     }
 }

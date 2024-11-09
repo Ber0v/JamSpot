@@ -2,6 +2,7 @@
 {
     public class EditUserViewModel
     {
+        public Guid Id { get; set; }
         public IFormFile? ProfilePicture { get; set; }
         public required string UserName { get; set; }
         public string? UserBio { get; set; }
