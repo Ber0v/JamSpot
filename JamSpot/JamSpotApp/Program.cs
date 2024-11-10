@@ -1,5 +1,6 @@
 using JamSpotApp.Data;
 using JamSpotApp.Data.Models;
+using JamSpotApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 namespace JamSpotApp
