@@ -12,7 +12,7 @@ using Xunit;
 using Assert = Xunit.Assert;
 
 
-namespace JamSpotApp.Tests
+namespace JamSpotApp.Tests.EventTests
 {
     public class EventServiceTests
     {
