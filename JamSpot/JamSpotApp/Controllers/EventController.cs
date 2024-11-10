@@ -23,6 +23,8 @@ namespace JamSpotApp.Controllers
         {
             var model = await context.Events
                 .Include(e => e.Organizer)
+                .Where(e => e.Date >= DateTime.Today)
+                .OrderBy(e => e.Date)
                 .Select(e => new EventViewModel()
                 {
                     EventName = e.EventName,
