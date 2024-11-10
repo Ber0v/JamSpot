@@ -29,6 +29,8 @@ namespace JamSpotApp
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
+            builder.Services.AddHostedService<DeleteOldEventsService>();
+
 
             var app = builder.Build();
 
