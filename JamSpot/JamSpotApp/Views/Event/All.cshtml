@@ -16,7 +16,6 @@
             <th>Organizer</th>
             <th>Location</th>
             <th>Date</th>
-            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -28,9 +27,6 @@
                 <td>@eventItem.Organizer</td>
                 <td>@eventItem.Location</td>
                 <td>@eventItem.Date</td>
-                <td>
-                    <a asp-action="Delete" asp-route-id="@eventItem.Id" class="btn btn-danger">Delete</a>
-                </td>
             </tr>
         }
     </tbody>
