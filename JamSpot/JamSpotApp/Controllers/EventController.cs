@@ -80,5 +80,41 @@ namespace JamSpotApp.Controllers
 
             return View(model);
         }
+
+        // GET: /Event/Delete/{id}
+        [HttpGet]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var model = await context.Events
+                .Where(p => p.Id == id)
+                .AsNoTracking()
+                .Select(e => new DeleteEventViewModel()
+                {
+                    Id = e.Id,
+                    EventName = e.EventName,
+                    Organizer = e.Organizer.UserName
+                })
+                .FirstOrDefaultAsync();
+
+            return View(model);
+        }
+
+        // POST: /Event/DeleteConfirmed
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(DeleteEventViewModel model)
+        {
+            var eventToDelete = await context.Events.FindAsync(model.Id);
+
+            if (eventToDelete == null)
+            {
+                return NotFound();
+            }
+
+            context.Events.Remove(eventToDelete);
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(All));
+        }
     }
 }
