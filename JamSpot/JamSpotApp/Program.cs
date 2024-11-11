@@ -42,7 +42,7 @@ namespace JamSpotApp
                 app.UseExceptionHandler("/Error/500");
 
                 // За 404 грешки
-                app.UseStatusCodePagesWithReExecute("/Error/{0}");
+                app.UseStatusCodePagesWithReExecute("/Error/404");
 
                 // HSTS
                 app.UseHsts();
