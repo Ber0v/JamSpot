@@ -2,6 +2,7 @@
 {
     public class EventViewModel
     {
+        public Guid Id { get; set; }
         public required string EventName { get; set; }
         public required string EventDescription { get; set; }
         public required string Location { get; set; }
