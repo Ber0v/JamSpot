@@ -39,10 +39,11 @@ namespace JamSpotApp
             if (!app.Environment.IsDevelopment())
             {
                 // За 500 грешки
-                app.UseExceptionHandler("/Error/500");
+                app.UseExceptionHandler("/Error");
 
                 // За 404 грешки
                 app.UseStatusCodePagesWithReExecute("/Error/404");
+
 
                 // HSTS
                 app.UseHsts();

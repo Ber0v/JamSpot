@@ -27,6 +27,7 @@ namespace JamSpotApp.Controllers
                 .OrderBy(e => e.Date)
                 .Select(e => new EventViewModel()
                 {
+                    Id = e.Id,
                     EventName = e.EventName,
                     EventDescription = e.EventDescription,
                     Organizer = e.Organizer.UserName,
