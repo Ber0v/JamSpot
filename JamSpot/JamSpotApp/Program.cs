@@ -32,11 +32,10 @@ namespace JamSpotApp
             builder.Services.AddRazorPages();
             builder.Services.AddHostedService<DeleteOldEventsService>();
 
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment())
             {
                 // За 500 грешки
                 app.UseExceptionHandler("/Error");
