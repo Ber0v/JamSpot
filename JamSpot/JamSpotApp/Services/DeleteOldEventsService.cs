@@ -29,9 +29,9 @@ namespace JamSpotApp.Services
 
         private async Task DeletePastEventsAsync(JamSpotDbContext context)
         {
-            var yesterday = DateTime.Today.AddDays(-1);
+            var thirtyDaysAgo = DateTime.Today.AddDays(-30);
             var pastEvents = await context.Events
-                .Where(e => e.Date < yesterday)
+                .Where(e => e.Date < thirtyDaysAgo)
                 .ToListAsync();
 
             if (pastEvents.Any())
