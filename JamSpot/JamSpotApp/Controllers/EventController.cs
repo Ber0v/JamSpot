@@ -97,6 +97,11 @@ namespace JamSpotApp.Controllers
                 })
                 .FirstOrDefaultAsync();
 
+            if (model == null)
+            {
+                return NotFound();
+            }
+
             return View(model);
         }
 
