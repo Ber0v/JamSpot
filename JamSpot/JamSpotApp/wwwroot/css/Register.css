@@ -1,0 +1,135 @@
+﻿/* Основен фон и текстови цветове */
+body {
+    background-color: #2b2b2b;
+    color: #ffffff;
+}
+
+/* Контейнер за регистрационната форма */
+.register-container {
+    background-color: #3c3c3c;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 80%;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    margin-top: 80px;
+}
+
+/* Социални бутони на един ред */
+.social-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 1px;
+}
+
+.btn-google, .btn-apple {
+    background-color: #4a4a4a;
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 50px;
+}
+
+    .btn-google img, .btn-apple img {
+        width: 20px;
+        margin-right: 10px;
+    }
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 2px 0;
+    color: #ffffff;
+}
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #666;
+    }
+
+    .divider:not(:empty)::before {
+        margin-right: .25em;
+    }
+
+    .divider:not(:empty)::after {
+        margin-left: .25em;
+    }
+
+/* Профилна снимка */
+.profile-picture-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 15px auto;
+}
+
+.profile-picture {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #666;
+    cursor: pointer;
+}
+
+.file-input {
+    position: absolute;
+    left: -9999px;
+    visibility: hidden;
+}
+
+/* Полета за формата */
+.form-control {
+    background-color: #4a4a4a;
+    color: #ffffff;
+    border: 1px solid #666;
+    border-radius: 15px;
+    margin-bottom: 1px;
+    padding: 9px;
+}
+
+/* Контейнер за последния ред с двата бутона */
+.final-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 100px;
+    margin-top: 1px;
+}
+
+.btn-instrument, .btn-register {
+    width: 48%;
+}
+
+.btn-register {
+    background-color: #007bff;
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 5px;
+    border: none;
+    padding: 10px;
+}
+
+.btn-instrument {
+    background-color: #007bff;
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 5px;
+    border: none;
+    padding: 10px;
+}
+
+.text-muted {
+    color: #cccccc !important;
+    font-size: 14px;
+}
