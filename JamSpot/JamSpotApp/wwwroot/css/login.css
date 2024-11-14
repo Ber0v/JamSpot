@@ -1,0 +1,83 @@
+
+
+/* Контейнер за логин формата */
+.login-container {
+    background-color: #3c3c3c;
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+}
+
+/* Социални бутони */
+.btn-google, .btn-apple {
+    background-color: #4a4a4a;
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    width: 100%;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+    .btn-google img, .btn-apple img {
+        width: 20px;
+        margin-right: 8px;
+    }
+
+/* Разделител */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: #ffffff;
+}
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #666;
+    }
+
+    .divider:not(:empty)::before {
+        margin-right: .25em;
+    }
+
+    .divider:not(:empty)::after {
+        margin-left: .25em;
+    }
+
+/* Полета за вход */
+.form-control {
+    background-color: #4a4a4a;
+    color: #ffffff;
+    border: 1px solid #666;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    padding: 10px;
+}
+
+/* Бутон за вход */
+.btn-signin {
+    background-color: #007bff;
+    color: #ffffff;
+    font-weight: 600;
+    width: 100%;
+    border-radius: 5px;
+    border: none;
+}
+
+/* Допълнителни текстови стилове */
+.text-muted {
+    color: #cccccc !important;
+    font-size: 14px;
+}

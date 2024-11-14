@@ -17,3 +17,4 @@ namespace JamSpotApp.Controllers
         }
     }
 }
+//temporarily created login view
