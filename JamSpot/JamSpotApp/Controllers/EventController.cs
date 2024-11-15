@@ -30,9 +30,11 @@ namespace JamSpotApp.Controllers
                     Id = e.Id,
                     EventName = e.EventName,
                     EventDescription = e.EventDescription,
+                    Price = e.Price,
                     Organizer = e.Organizer.UserName,
                     Location = e.Location,
-                    Date = e.Date.ToString("dd-MM-yy"),
+                    Date = e.Date.ToString("dd.MM.yyyy"),
+                    Hour = e.Hour.ToString("HH\\:mm"),
                 })
                 .AsNoTracking()
                 .ToListAsync();
@@ -56,11 +58,17 @@ namespace JamSpotApp.Controllers
             {
                 var user = await _userManager.GetUserAsync(User);
                 DateTime Date;
+                TimeOnly hour;
 
-                if (DateTime.TryParseExact(model.Date, "dd-MM-yy", CultureInfo.CurrentCulture, DateTimeStyles.None, out Date) == false)
+                if (DateTime.TryParseExact(model.Date, "dd.MM.yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out Date) == false)
                 {
                     ModelState.AddModelError(nameof(model.Date), "Invalid date format");
+                    return View(model);
+                }
 
+                if (TimeOnly.TryParseExact(model.Hour, "HH\\:mm", CultureInfo.CurrentCulture, DateTimeStyles.None, out hour) == false)
+                {
+                    ModelState.AddModelError(nameof(model.Hour), "Invalid time format");
                     return View(model);
                 }
 
@@ -68,8 +76,10 @@ namespace JamSpotApp.Controllers
                 {
                     EventName = model.EventName,
                     EventDescription = model.EventDescription,
+                    Price = model.Price,
                     Location = model.Location,
                     Date = Date,
+                    Hour = hour,
                     Organizer = user
                 };
 
