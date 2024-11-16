@@ -23,6 +23,9 @@
                 <!-- Edit Button -->
                 <div class="d-flex justify-content-center align-items-center mt-3">
                     <a asp-controller="Group" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-light ms-4">Edit Group</a>
+
+                <!-- Delete Button -->
+                    <a asp-controller="Group" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-4">Delete Group</a>
                 </div>
             }
             <!-- Tabs for Posts, Saved, and Tagged -->

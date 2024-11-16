@@ -1,0 +1,25 @@
+﻿@model JamSpotApp.Models.Group.DeleteGroupViewModel
+
+@{
+    ViewData["Title"] = "Delete Group";
+}
+
+@if (Model != null)
+{
+    <h2>Are you sure you want to delete this group?</h2>
+
+    <div>
+        <h4>@Model.GroupName</h4>
+        <p>Organizer: @Model.Creator</p>
+
+        <form asp-action="DeleteConfirmed" method="post">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            <a asp-action="All" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+}
+else
+{
+    <p>Group not found.</p>
+}
