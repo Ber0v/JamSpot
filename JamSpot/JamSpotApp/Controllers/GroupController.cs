@@ -158,6 +158,47 @@ namespace JamSpotApp.Controllers
             return RedirectToAction(nameof(All));
         }
 
+        // GET: /Group/Delete/{id}
+        [HttpGet]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var model = await context.Groups
+                .Where(p => p.Id == id)
+                .AsNoTracking()
+                .Select(e => new DeleteGroupViewModel()
+                {
+                    Id = e.Id,
+                    GroupName = e.GroupName,
+                    Creator = e.Creator.UserName
+                })
+                .FirstOrDefaultAsync();
+
+            if (model == null)
+            {
+                return NotFound();
+            }
+
+            return View(model);
+        }
+
+        // POST: /Group/DeleteConfirmed
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(DeleteGroupViewModel model)
+        {
+            var groupToDelete = await context.Groups.FindAsync(model.Id);
+
+            if (groupToDelete == null)
+            {
+                return NotFound();
+            }
+
+            context.Groups.Remove(groupToDelete);
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(All));
+        }
+
         private string UploadLogo(IFormFile file)
         {
             if (file == null || file.Length == 0)
