@@ -1,9 +1,25 @@
 ﻿@using JamSpotApp.Models.Group
 @model CreateGroupViewModel
+<link rel="stylesheet" href="~/css/CreateGroup.css" asp-append-version="true"/>
 
-<div class="container mt-4">
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+    <div class="Group-container">
     <h2>Create New Group</h2>
+
     <form asp-action="CreateGroup" method="post" enctype="multipart/form-data">
+            <div class="Group-picture-container">
+                <img id="GroupImage"
+                     src="https://static.vecteezy.com/system/resources/thumbnails/046/300/546/small/avatar-user-profile-person-icon-gender-neutral-silhouette-profile-picture-suitable-for-social-media-profiles-icons-screensavers-free-png.png"
+                     alt="Profile Picture"
+                     class="Group-picture"
+                     onclick="document.getElementById('fileInput').click();" />
+                <input type="file"
+                       id="fileInput"
+                       class="file-input"
+                       asp-for="Logo"
+                       accept="image/*"
+                       onchange="previewImage(event)" />
+            </div>
         <div class="form-group">
             <label asp-for="GroupName" class="control-label">Group Name</label>
             <input asp-for="GroupName" class="form-control" />
@@ -19,11 +35,19 @@
             <input asp-for="Genre" class="form-control" />
             <span asp-validation-for="Genre" class="text-danger"></span>
         </div>
-        <div class="form-group">
-            <label asp-for="Logo" class="control-label">Upload Logo</label>
-            <input asp-for="Logo" type="file" class="form-control-file" />
-            <span asp-validation-for="Logo" class="text-danger"></span>
-        </div>
         <button type="submit" class="btn btn-primary mt-3">Create Group</button>
     </form>
+    </div>
 </div>
+<script>
+    
+    // Image preview function
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function () {
+            const output = document.getElementById('GroupImage');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
