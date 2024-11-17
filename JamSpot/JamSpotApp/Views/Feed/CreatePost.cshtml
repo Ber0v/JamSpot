@@ -1,11 +1,12 @@
 ﻿@using JamSpotApp.Models.feed
 @model CreatePostViewModel
-
+<link rel="stylesheet" href="~/css/Feed.css" asp-append-version="true" />
 @{
     ViewData["Title"] = "Create Post";
 }
-
-<h2>Create a New Musician Search Post</h2>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+    <div class="Group-container">
+<h2>New Musician Search Post</h2>
 
 <form asp-action="CreatePost" method="post">
     <div class="form-group">
@@ -20,9 +21,10 @@
         <span asp-validation-for="Content" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Create Post</button>
+            <button type="submit" class="btn btn-primary mt-3">Create Post</button>
 </form>
-
+    </div>
+</div>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
