@@ -29,6 +29,7 @@ namespace ArtJamWebApp.Controllers
                     Id = p.Id,
                     Title = p.Title,
                     Content = p.Content,
+                    Instrument = p.User.Instrument,
                     Image = p.User != null ? p.User.ProfilePicture : (p.Group != null ? p.Group.Logo : null),
                     Publisher = p.User != null ? p.User.UserName : (p.Group != null ? p.Group.GroupName : null),
                     PublisherId = p.User.Id,

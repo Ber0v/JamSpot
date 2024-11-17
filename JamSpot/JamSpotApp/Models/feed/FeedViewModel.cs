@@ -13,6 +13,8 @@ namespace JamSpotApp.Models.feed
         [Required]
         public required string Content { get; set; }
 
+        public string? Instrument { get; set; }
+
         [Required]
         public required string Publisher { get; set; }
 
