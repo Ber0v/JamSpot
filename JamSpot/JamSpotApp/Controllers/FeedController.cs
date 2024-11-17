@@ -31,12 +31,20 @@ namespace ArtJamWebApp.Controllers
                     Content = p.Content,
                     Image = p.User != null ? p.User.ProfilePicture : (p.Group != null ? p.Group.Logo : null),
                     Publisher = p.User != null ? p.User.UserName : (p.Group != null ? p.Group.GroupName : null),
+                    PublisherId = p.User.Id,
                     CreatedDate = p.CreatedDate.ToString("yyyy-MM-dd"),
                 })
                 .AsNoTracking()
                 .ToListAsync();
 
             return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult UserDetails(Guid id)
+        {
+            // Пренасочва към UserController -> All
+            return RedirectToAction("All", "User", new { id });
         }
 
 

@@ -18,21 +18,48 @@ namespace JamSpotApp.Controllers
             context = _context;
             _userManager = userManager;
         }
-        public async Task<IActionResult> All()
+        [HttpGet]
+        public async Task<IActionResult> All(Guid? id)
         {
-            var user = await _userManager.GetUserAsync(User);
+            UserViewModel model;
 
-            var model = new UserViewModel
+            if (id.HasValue)
             {
-                Id = user.Id,
-                ProfilePicture = user.ProfilePicture,
-                UserName = user.UserName,
-                UserBio = user.UserBio,
-                Instrument = user.Instrument
-            };
+                // Показва конкретен потребител по ID
+                model = await context.Users
+                    .Where(u => u.Id == id.Value)
+                    .Select(u => new UserViewModel
+                    {
+                        Id = u.Id,
+                        ProfilePicture = u.ProfilePicture,
+                        UserName = u.UserName,
+                        UserBio = u.UserBio,
+                        Instrument = u.Instrument
+                    })
+                    .FirstOrDefaultAsync();
+            }
+            else
+            {
+                // Логика за общ преглед, ако ID не е подадено
+                var user = await _userManager.GetUserAsync(User);
+                model = new UserViewModel
+                {
+                    Id = user.Id,
+                    ProfilePicture = user.ProfilePicture,
+                    UserName = user.UserName,
+                    UserBio = user.UserBio,
+                    Instrument = user.Instrument
+                };
+            }
+
+            if (model == null)
+            {
+                return NotFound();
+            }
 
             return View(model);
         }
+
 
         // GET: /User/Edit/{id} - Извежда форма за редактиране на съществуваща user
         [HttpGet]
