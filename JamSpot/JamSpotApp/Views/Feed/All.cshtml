@@ -4,61 +4,52 @@
     ViewBag.Title = "Display all posts";
 }
 
-<h2 class="text-center">@ViewBag.Title</h2>
+<a asp-action="CreatePost" class="btn btn-primary float-end rounded-pill">Add post</a>
+<h2 class="mt-3 text-center">All posts</h2>
 <hr />
 
-<div class="text-center row">
-    @foreach (var e in Model)
-    {
-        <div class="card custom-navbar" style="width: 20rem;">
-            @if (!string.IsNullOrEmpty(e.Image))
-            {
-                <img src="@e.Image" class="card-img-top img-fluid" style="height: 200px; object-fit: cover;" alt="Image">
-            }
-            else
-            {
-                <img src="~/img/PH.jpg" class="card-img-top img-fluid" style="height: 200px; object-fit: cover;" alt="Placeholder Image">
-            }
-
-            <div class="card-body" style="height: calc(100% - 150px); overflow: auto;">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="title-wrapper" style="height: 10em; overflow: hidden;">
-                            <h4 class="card-title mt-1">@e.Title</h4>
-                            <p class="card-text">@e.Content</p>
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var e in Model)
+        {
+            <div class="col">
+                <div class="card rounded-4 custom-navbar">
+                    <div class="card-header bg-dark text-white rounded-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="card-title mt-1 mb-1">@e.Publisher</h4>
+                                <div class="mt-2">
+                                    <span class="badge bg-success">@e.Instrument</span>
+                                </div>
+                            </div>
+                            <img src="@e.Image" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" alt="Image">
                         </div>
                     </div>
-                </div>
-                <p class="mb-0"><span class="fw-bold">CreatedDate: </span>@e.CreatedDate</p>
-            </div>
 
-            <div class="row gx-0">
-                <div class="col-12 px-1">
-                    <a asp-controller="Feed" asp-action="AddToMyZone" asp-route-id="@e.Id" class="btn btn-warning btn-sm mb-2 w-100 fw-bold rounded btn-dark-text">Add to MyZone</a>
-                </div>
-            </div>
+               <div class="card-body">
+                    <h4 class="card-title mt-0">@e.Title</h4>
+                    <p class="card-text">@e.Content</p>
+               </div>
 
-            <div class="row gx-0">
-                @if (User?.Identity?.Name == e.Publisher)
-                {
-                    <a asp-controller="Feed" asp-action="Delete" asp-route-id="@e.Id" class="btn btn-danger btn-rounded mb-2 w-100 p-3 fw-bold">Delete</a>
-
-                    <div class="col-6 px-1">
-                        <a asp-controller="Feed" asp-action="Edit" asp-route-id="@e.Id" class="btn btn-warning btn-sm mb-2 w-100 fw-bold rounded btn-dark-text">Edit</a>
-                    </div>
-                    <div class="col-6 px-1">
-                        <a asp-controller="Feed" asp-action="UserDetails" asp-route-id="@e.PublisherId" class="btn btn-warning btn-sm mb-2 w-100 fw-bold rounded btn-dark-text">Details</a>
-                    </div>
-                }
-                else
-                {
-                    <div class="col-12 px-1">
-                        <a asp-controller="Feed" asp-action="UserDetails" asp-route-id="@e.PublisherId" class="btn btn-warning btn-sm mb-2 w-100 fw-bold rounded btn-dark-text">Details</a>
-                    </div>
-                }
-            </div>
-        </div>
+                <div class="card-footer d-flex justify-content-between align-items-center border-secondary">
+                    <p class="mb-0"><span class="fw-bold">Published: </span>@e.CreatedDate</p>
+                        <div class="d-flex flex-row w-100 justify-content-end">
+                            @if (User?.Identity?.Name == e.Publisher)
+                            {
+                                <a asp-controller="Feed" asp-action="Delete" asp-route-id="@e.Id" class="btn btn-danger btn-rounded me-2 fw-bold">Delete</a>
+                                <a asp-controller="Feed" asp-action="Edit" asp-route-id="@e.Id" class="btn btn-warning btn-sm me-2 fw-bold rounded btn-dark-text">Edit</a>
+                                <a asp-controller="Feed" asp-action="UserDetails" asp-route-id="@e.PublisherId" class="btn btn-warning btn-sm fw-bold rounded btn-dark-text">Details</a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Feed" asp-action="UserDetails" asp-route-id="@e.PublisherId" class="btn btn-warning btn-sm fw-bold rounded btn-dark-text">Details</a>
+                            }
+                        </div>
+               </div>
+           </div>
+       </div>
     }
+</div>
 </div>
 
 @section Scripts {
