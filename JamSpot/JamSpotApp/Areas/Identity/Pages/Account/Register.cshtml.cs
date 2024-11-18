@@ -43,9 +43,6 @@ namespace ArtJamWebApp.Areas.Identity.Pages.Account
         [BindProperty]
         public bool IsMusician { get; set; } // Опция дали е музикант
 
-        [BindProperty]
-        public string? Instrument { get; set; } // Избран инструмент
-
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
@@ -59,7 +56,6 @@ namespace ArtJamWebApp.Areas.Identity.Pages.Account
                 UserName = UserName,
                 ProfilePicture = ProfilePicture != null ? UploadProfilePicture(ProfilePicture) : DefaultPicture(),
                 IsMusician = IsMusician,
-                Instrument = Instrument
             };
 
             var result = await _userManager.CreateAsync(user, Password);

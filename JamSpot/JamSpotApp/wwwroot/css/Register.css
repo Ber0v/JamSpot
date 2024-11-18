@@ -107,20 +107,11 @@ body {
     margin-top: 1px;
 }
 
-.btn-instrument, .btn-register {
+.btn-register {
     width: 48%;
 }
 
 .btn-register {
-    background-color: #007bff;
-    color: #ffffff;
-    font-weight: 600;
-    border-radius: 5px;
-    border: none;
-    padding: 10px;
-}
-
-.btn-instrument {
     background-color: #007bff;
     color: #ffffff;
     font-weight: 600;

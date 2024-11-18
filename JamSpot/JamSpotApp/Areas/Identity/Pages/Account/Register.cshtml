@@ -62,21 +62,7 @@
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
 
-            <!-- Последен ред с бутони за избор на инструмент и регистрация -->
-            <div class="final-buttons">
-                <button type="button" class="btn btn-instrument dropdown-toggle" data-toggle="dropdown">Are you a musician?</button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#" data-instrument="None">No</a>
-                    <a class="dropdown-item" href="#" data-instrument="Guitar">Guitar</a>
-                    <a class="dropdown-item" href="#" data-instrument="Piano/Keys">Piano/Keys</a>
-                    <a class="dropdown-item" href="#" data-instrument="Drums">Drums</a>
-                    <a class="dropdown-item" href="#" data-instrument="Bass">Bass</a>
-                    <a class="dropdown-item" href="#" data-instrument="Vocal">Vocal</a>
-                    <a class="dropdown-item" href="#" data-instrument="Other">Other</a>
-                </div>
-
                 <button type="submit" class="btn btn-register">Register</button>
-            </div>
         </form>
     </div>
 </div>
@@ -84,16 +70,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Logic for instrument selection
-        document.querySelectorAll(".dropdown-item").forEach(item => {
-            item.addEventListener("click", function (event) {
-                event.preventDefault();
-                let instrument = this.getAttribute("data-instrument");
-                let buttonText = instrument === "None" ? "Are you a musician?" : instrument;
-                document.querySelector(".btn-instrument").innerText = buttonText;
-            });
-        });
-
         // Image preview function
         function previewImage(event) {
             const reader = new FileReader();
