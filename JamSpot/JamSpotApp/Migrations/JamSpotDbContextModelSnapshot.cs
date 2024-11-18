@@ -22,21 +22,6 @@ namespace JamSpotApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GroupUser", b =>
-                {
-                    b.Property<Guid>("FollowingGroupsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("MembersId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("FollowingGroupsId", "MembersId");
-
-                    b.HasIndex("MembersId");
-
-                    b.ToTable("GroupUser");
-                });
-
             modelBuilder.Entity("JamSpotApp.Data.Models.Album", b =>
                 {
                     b.Property<Guid>("Id")
@@ -104,27 +89,6 @@ namespace JamSpotApp.Migrations
                     b.HasIndex("OrganizerId");
 
                     b.ToTable("Events");
-                });
-
-            modelBuilder.Entity("JamSpotApp.Data.Models.Follow", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FollowedId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FollowerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FollowedId");
-
-                    b.HasIndex("FollowerId");
-
-                    b.ToTable("Follows");
                 });
 
             modelBuilder.Entity("JamSpotApp.Data.Models.Group", b =>
@@ -249,6 +213,9 @@ namespace JamSpotApp.Migrations
                     b.Property<Guid?>("EventId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Instrument")
                         .HasColumnType("nvarchar(max)");
 
@@ -291,9 +258,6 @@ namespace JamSpotApp.Migrations
                     b.Property<string>("UserBio")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -302,6 +266,8 @@ namespace JamSpotApp.Migrations
 
                     b.HasIndex("EventId");
 
+                    b.HasIndex("GroupId");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -309,8 +275,6 @@ namespace JamSpotApp.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -446,21 +410,6 @@ namespace JamSpotApp.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("GroupUser", b =>
-                {
-                    b.HasOne("JamSpotApp.Data.Models.Group", null)
-                        .WithMany()
-                        .HasForeignKey("FollowingGroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("JamSpotApp.Data.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("MembersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("JamSpotApp.Data.Models.Album", b =>
                 {
                     b.HasOne("JamSpotApp.Data.Models.Group", "Group")
@@ -487,27 +436,12 @@ namespace JamSpotApp.Migrations
                     b.Navigation("Organizer");
                 });
 
-            modelBuilder.Entity("JamSpotApp.Data.Models.Follow", b =>
-                {
-                    b.HasOne("JamSpotApp.Data.Models.Group", null)
-                        .WithMany()
-                        .HasForeignKey("FollowedId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("JamSpotApp.Data.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("JamSpotApp.Data.Models.Group", b =>
                 {
                     b.HasOne("JamSpotApp.Data.Models.User", "Creator")
                         .WithMany("Groups")
                         .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Creator");
@@ -521,7 +455,8 @@ namespace JamSpotApp.Migrations
 
                     b.HasOne("JamSpotApp.Data.Models.User", "User")
                         .WithMany("Posts")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Group");
 
@@ -555,9 +490,9 @@ namespace JamSpotApp.Migrations
                         .WithMany("Participants")
                         .HasForeignKey("EventId");
 
-                    b.HasOne("JamSpotApp.Data.Models.User", null)
-                        .WithMany("FollowingUsers")
-                        .HasForeignKey("UserId");
+                    b.HasOne("JamSpotApp.Data.Models.Group", null)
+                        .WithMany("Members")
+                        .HasForeignKey("GroupId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -623,6 +558,8 @@ namespace JamSpotApp.Migrations
 
             modelBuilder.Entity("JamSpotApp.Data.Models.Group", b =>
                 {
+                    b.Navigation("Members");
+
                     b.Navigation("Posts");
 
                     b.Navigation("Songs");
@@ -631,8 +568,6 @@ namespace JamSpotApp.Migrations
             modelBuilder.Entity("JamSpotApp.Data.Models.User", b =>
                 {
                     b.Navigation("Events");
-
-                    b.Navigation("FollowingUsers");
 
                     b.Navigation("Groups");
 

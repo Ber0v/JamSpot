@@ -15,7 +15,6 @@ namespace JamSpotApp.Data
         public new DbSet<User> Users { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<Post> Posts { get; set; }
-        public DbSet<Follow> Follows { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Song> Songs { get; set; }
         public DbSet<Album> Albums { get; set; }
@@ -23,9 +22,6 @@ namespace JamSpotApp.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
-            // Configure Follow relationship
-            FollowMethod(builder);
 
             // Configure Post relationships
             PostMethod(builder);
@@ -40,7 +36,7 @@ namespace JamSpotApp.Data
                 .HasOne(g => g.Creator)
                 .WithMany(g => g.Groups)
                 .HasForeignKey(g => g.CreatorId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure Song relationships
             SongMethod(builder);
@@ -69,7 +65,8 @@ namespace JamSpotApp.Data
             builder.Entity<Post>()
                             .HasOne(p => p.User)
                             .WithMany(u => u.Posts)
-                            .HasForeignKey(p => p.UserId);
+                            .HasForeignKey(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Post>()
                 .HasOne(p => p.Group)
@@ -77,20 +74,5 @@ namespace JamSpotApp.Data
                 .HasForeignKey(p => p.GroupId);
         }
 
-        private static void FollowMethod(ModelBuilder builder)
-        {
-            builder.Entity<Follow>()
-                            .HasKey(f => f.Id);
-
-            builder.Entity<Follow>()
-                .HasOne<User>()
-                .WithMany()
-                .HasForeignKey(f => f.FollowerId);
-
-            builder.Entity<Follow>()
-                .HasOne<Group>()
-                .WithMany()
-                .HasForeignKey(f => f.FollowedId);
-        }
     }
 }

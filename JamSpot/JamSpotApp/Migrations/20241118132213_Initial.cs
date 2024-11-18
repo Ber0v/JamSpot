@@ -119,7 +119,7 @@ namespace JamSpotApp.Migrations
                     Instrument = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsMusician = table.Column<bool>(type: "bit", nullable: false),
                     EventId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -138,11 +138,6 @@ namespace JamSpotApp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUsers_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -166,12 +161,36 @@ namespace JamSpotApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Events",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EventName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EventDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Hour = table.Column<TimeOnly>(type: "time", nullable: false),
+                    OrganizerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Events", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Events_AspNetUsers_OrganizerId",
+                        column: x => x.OrganizerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Groups",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     GroupName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Logo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Logo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Genre = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
@@ -183,76 +202,6 @@ namespace JamSpotApp.Migrations
                         name: "FK_Groups_AspNetUsers_CreatorId",
                         column: x => x.CreatorId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Events",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EventName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    OrganizerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Events", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Events_Groups_OrganizerId",
-                        column: x => x.OrganizerId,
-                        principalTable: "Groups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Follows",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FollowerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FollowedId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Follows", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Follows_AspNetUsers_FollowerId",
-                        column: x => x.FollowerId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Follows_Groups_FollowedId",
-                        column: x => x.FollowedId,
-                        principalTable: "Groups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "GroupUser",
-                columns: table => new
-                {
-                    FollowingGroupsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MembersId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_GroupUser", x => new { x.FollowingGroupsId, x.MembersId });
-                    table.ForeignKey(
-                        name: "FK_GroupUser_AspNetUsers_MembersId",
-                        column: x => x.MembersId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_GroupUser_Groups_FollowingGroupsId",
-                        column: x => x.FollowingGroupsId,
-                        principalTable: "Groups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -275,7 +224,8 @@ namespace JamSpotApp.Migrations
                         name: "FK_Posts_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Posts_Groups_GroupId",
                         column: x => x.GroupId,
@@ -363,9 +313,9 @@ namespace JamSpotApp.Migrations
                 column: "EventId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_UserId",
+                name: "IX_AspNetUsers_GroupId",
                 table: "AspNetUsers",
-                column: "UserId");
+                column: "GroupId");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
@@ -380,24 +330,9 @@ namespace JamSpotApp.Migrations
                 column: "OrganizerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Follows_FollowedId",
-                table: "Follows",
-                column: "FollowedId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Follows_FollowerId",
-                table: "Follows",
-                column: "FollowerId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Groups_CreatorId",
                 table: "Groups",
                 column: "CreatorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GroupUser_MembersId",
-                table: "GroupUser",
-                column: "MembersId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Posts_GroupId",
@@ -468,11 +403,22 @@ namespace JamSpotApp.Migrations
                 column: "EventId",
                 principalTable: "Events",
                 principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUsers_Groups_GroupId",
+                table: "AspNetUsers",
+                column: "GroupId",
+                principalTable: "Groups",
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Events_AspNetUsers_OrganizerId",
+                table: "Events");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_Groups_AspNetUsers_CreatorId",
                 table: "Groups");
@@ -491,12 +437,6 @@ namespace JamSpotApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
-
-            migrationBuilder.DropTable(
-                name: "Follows");
-
-            migrationBuilder.DropTable(
-                name: "GroupUser");
 
             migrationBuilder.DropTable(
                 name: "Posts");
