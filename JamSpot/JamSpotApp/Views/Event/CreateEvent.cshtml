@@ -1,11 +1,11 @@
 ﻿@model JamSpotApp.Models.Event.CreateEventViewModel
 
-@{
-    ViewData["Title"] = "Create Event";
-}
+<link rel="stylesheet" href="~/css/Event.css" asp-append-version="true" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+    <div class="Event-container">
 <h2 class="mt-4">Create Event</h2>
 
 <form asp-action="CreateEvent" method="post">
@@ -19,30 +19,44 @@
         <textarea asp-for="EventDescription" class="form-control" maxlength="300"></textarea>
         <span asp-validation-for="EventDescription" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="Price" class="form-label"></label>
-        <input asp-for="Price" class="form-control" placeholder="Enter the price" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Location"></label>
-        <input asp-for="Location" class="form-control" />
-        <span asp-validation-for="Location" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Date"></label>
-        <input asp-for="Date" class="form-control" id="datepicker" placeholder="dd.MM.yyyy" />
-        <span asp-validation-for="Date" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Hour"></label>
-        <input asp-for="Hour" class="form-control" id="kt_timepicker_8" type="text" placeholder="HH\\:mm" />
-        <span asp-validation-for="Hour" class="text-danger"></span>
-    </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label asp-for="Price"></label>
+                        <input asp-for="Price" class="form-control" placeholder="Price" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-9">
+                        <label asp-for="Location"></label>
+                        <div class="input-group">
+                            <input asp-for="Location" id="locationInput" class="form-control" />
+                            <button type="button" class="btn btn-primary" onclick="openLocation()">Go</button>
+                        </div>
+                        <span asp-validation-for="Location" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label asp-for="Date"></label>
+                        <input asp-for="Date" class="form-control" id="datepicker" placeholder="dd.MM.yyyy" />
+                        <span asp-validation-for="Date" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Hour"></label>
+                        <input asp-for="Hour" class="form-control" id="kt_timepicker_8" type="text" placeholder="HH\\:mm" />
+                        <span asp-validation-for="Hour" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
     <button type="submit" class="btn btn-primary mt-3">Create</button>
 
 </form>
-
+    </div>
+</div>
 <script>
     // Инициализация на Flatpickr с персонализиран формат
     flatpickr("#datepicker", {
@@ -55,6 +69,15 @@
         dateFormat: "H:i",
     });
 
+    // location link
+    function openLocation() {
+        const location = document.getElementById('locationInput').value;
+        if (location) {
+            window.open(location.startsWith("http") ? location : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`, '_blank');
+        } else {
+            alert("Please enter a valid location.");
+        }
+    }
 </script>
 @section Scripts {
     @{
