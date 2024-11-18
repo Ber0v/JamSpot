@@ -28,7 +28,17 @@
 
                     <div class="card-body">
                         <p class="card-text mb-1"><strong>Description:</strong> @eventItem.EventDescription</p>
-                        <p class="card-text"><strong>Location:</strong> @eventItem.Location</p>
+                        <p class="card-text">
+                            <strong>Location:</strong>
+                            @if (Uri.IsWellFormedUriString(eventItem.Location, UriKind.Absolute))
+                            {
+                                <a href="@eventItem.Location" target="_blank" class="btn btn-primary btn-sm">Open Location</a>
+                            }
+                            else
+                            {
+                                @eventItem.Location
+                            }
+                        </p>
                     </div>
 
                     <div class="card-footer d-flex justify-content-between align-items-center border-secondary">
