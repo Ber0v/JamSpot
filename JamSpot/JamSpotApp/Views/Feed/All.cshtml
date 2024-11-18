@@ -31,21 +31,23 @@
                     <p class="card-text">@e.Content</p>
                </div>
 
-                <div class="card-footer d-flex justify-content-between align-items-center border-secondary">
-                    <p class="mb-0"><span class="fw-bold">Published: </span>@e.CreatedDate</p>
-                        <div class="d-flex flex-row w-100 justify-content-end">
-                            @if (User?.Identity?.Name == e.Publisher)
-                            {
-                                <a asp-controller="Feed" asp-action="Delete" asp-route-id="@e.Id" class="btn btn-danger btn-rounded me-2 fw-bold">Delete</a>
-                                <a asp-controller="Feed" asp-action="Edit" asp-route-id="@e.Id" class="btn btn-warning btn-sm me-2 fw-bold rounded btn-dark-text">Edit</a>
-                                <a asp-controller="Feed" asp-action="UserDetails" asp-route-id="@e.PublisherId" class="btn btn-warning btn-sm fw-bold rounded btn-dark-text">Details</a>
-                            }
-                            else
-                            {
-                                <a asp-controller="Feed" asp-action="UserDetails" asp-route-id="@e.PublisherId" class="btn btn-warning btn-sm fw-bold rounded btn-dark-text">Details</a>
-                            }
+                    <div class="card-footer border-secondary">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center">
+                            <p class="mb-2"><span class="fw-bold">Published: </span>@e.CreatedDate</p>
+                            <div class="d-flex flex-wrap justify-content-end">
+                                @if (User?.Identity?.Name == e.Publisher)
+                                {
+                                    <a asp-controller="Feed" asp-action="Delete" asp-route-id="@e.Id" class="btn btn-danger btn-sm me-2 mb-2 fw-bold">Delete</a>
+                                    <a asp-controller="Feed" asp-action="Edit" asp-route-id="@e.Id" class="btn btn-warning btn-sm me-2 mb-2 fw-bold rounded btn-dark-text">Edit</a>
+                                    <a asp-controller="Feed" asp-action="UserDetails" asp-route-id="@e.PublisherId" class="btn btn-warning btn-sm mb-2 fw-bold rounded btn-dark-text">Details</a>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Feed" asp-action="UserDetails" asp-route-id="@e.PublisherId" class="btn btn-warning btn-sm mb-2 fw-bold rounded btn-dark-text">Details</a>
+                                }
+                            </div>
                         </div>
-               </div>
+                    </div>
            </div>
        </div>
     }
