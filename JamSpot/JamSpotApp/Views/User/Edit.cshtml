@@ -39,5 +39,9 @@
         </div>
 
         <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+        @if (Model != null)
+        {
+            <a asp-controller="User" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger mt-3">Delete</a>
+        }
     </form>
 </div>

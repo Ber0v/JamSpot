@@ -1,0 +1,33 @@
+﻿@using JamSpotApp.Models.User
+@model DeleteUserViewModel
+<link rel="stylesheet" href="~/css/Feed.css" asp-append-version="true" />
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+    <div class="Feed-container">
+        @if (User.Identity?.IsAuthenticated ?? false)
+        {
+            @if (Model != null)
+            {
+                <h2 class="mt-2">Are you sure you want to disappear?</h2>
+
+                <div>
+                    <h4>@Model.UserName</h4>
+
+                    <form asp-action="DeleteConfirmed" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger">Yes</button>
+                        <a asp-action="All" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <h1 class="text-danger">user not found.</h1>
+            }
+        }
+        else
+        {
+            <h1 class ="text-danger">You have successfully disappeared.</h1>
+        }
+    </div>
+</div>

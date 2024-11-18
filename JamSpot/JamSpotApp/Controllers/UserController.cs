@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JamSpotApp.Controllers
 {
     using JamSpotApp.Models.User;
+    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
 
@@ -72,6 +73,7 @@ namespace JamSpotApp.Controllers
 
             var model = new EditUserViewModel()
             {
+                Id = id,
                 ExistingPicturePath = user.ProfilePicture,
                 UserName = user.UserName,
                 UserBio = user.UserBio,
@@ -117,6 +119,40 @@ namespace JamSpotApp.Controllers
             return RedirectToAction(nameof(All));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var model = await context.Users
+                .Where(p => p.Id == id)
+                .AsNoTracking()
+                .Select(p => new DeleteUserViewModel()
+                {
+                    Id = p.Id,
+                    UserName = p.UserName,
+                })
+                .FirstOrDefaultAsync();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteConfirmed(DeleteUserViewModel model)
+        {
+            var user = await context.Users.FindAsync(model.Id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            context.Users.Remove(user);
+            await context.SaveChangesAsync();
+
+            await _userManager.UpdateSecurityStampAsync(user);
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+
+            return RedirectToAction("Delete");
+        }
         private string UploadLogo(IFormFile file)
         {
             if (file == null || file.Length == 0)
