@@ -8,14 +8,18 @@
 
         <!-- Google и Apple логин бутони на един ред -->
         <div class="social-buttons">
-            <button class="btn btn-google">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" alt="Google logo">
-                with Google
-            </button>
-            <button class="btn btn-apple">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple logo">
-                with Apple
-            </button>
+            <form method="get" asp-page="/Account/ExternalLogin" asp-route-provider="Google">
+                <button type="submit" class="btn btn-google">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" alt="Google logo">
+                    with Google
+                </button>
+            </form>
+            <form method="get" asp-page="/Account/ExternalLogin" asp-route-provider="Apple">
+                <button type="submit" class="btn btn-apple">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple logo">
+                    with Apple
+                </button>
+            </form>
         </div>
 
         <!-- Разделител -->
