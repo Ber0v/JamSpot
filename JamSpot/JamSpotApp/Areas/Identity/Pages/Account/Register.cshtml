@@ -2,19 +2,19 @@
 @using ArtJamWebApp.Areas.Identity.Pages.Account
 @model RegisterModel
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 70vh;">
     <div class="register-container">
-        <h2>Create an Account</h2>
+        <h2>Sign up</h2>
 
         <!-- Google и Apple логин бутони на един ред -->
         <div class="social-buttons">
             <button class="btn btn-google">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" alt="Google logo">
-                Sign up with Google
+                with Google
             </button>
             <button class="btn btn-apple">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple logo">
-                Sign up with Apple
+                with Apple
             </button>
         </div>
 
@@ -50,20 +50,27 @@
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
-            <div class="mb-3 mt-3">
-                <label asp-for="Password">Password</label>
-                <input asp-for="Password" class="form-control" type="password" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+            <div class="row mb-3 mt-3">
+                <div class="col-md-6">
+                    <label asp-for="Password">Password</label>
+                    <input asp-for="Password" class="form-control" type="password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="ConfirmPassword">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" type="password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
             </div>
 
-            <div class="mb-3 mt-3">
-                <label asp-for="ConfirmPassword">Confirm Password</label>
-                <input asp-for="ConfirmPassword" class="form-control" type="password" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
 
                 <button type="submit" class="btn btn-register">Register</button>
         </form>
+        <p class="text-muted mt-3">
+            Already have an account?
+            <a asp-area="Identity" asp-page="/Account/Login" class="text-primary">Sign in</a>
+        </p>
     </div>
 </div>
 
