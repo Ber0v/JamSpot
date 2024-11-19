@@ -24,16 +24,28 @@
                     <a asp-controller="User" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-light ms-4">Edit Profile</a>
                 </div>
             }
-                <!-- Tabs for Posts, Saved, and Tagged -->
-                <ul class="nav nav-tabs mt-4 justify-content-center border-bottom border-secondary">
-                    
-                </ul>
 
-                <!-- Placeholder for Posts -->
-                <div class="text-center mt-5">
-                    <p class="text-muted">Share music when you want to show them on your profile.</p>
+            <div class="mt-5">
+                <h4>Pinned Songs</h4>
+                <div>
+                    @await Html.PartialAsync("All", new List<JamSpotApp.Data.Models.Song>())
                 </div>
+            </div>
             </div>
         </div>
     </div>
+<script>
+    function showSongs() {
+        document.getElementById('songs-section').style.display = 'block';
+        document.getElementById('albums-section').style.display = 'none';
+        document.getElementById('songs-tab').classList.add('active');
+        document.getElementById('albums-tab').classList.remove('active');
+    }
 
+    function showAlbums() {
+        document.getElementById('songs-section').style.display = 'none';
+        document.getElementById('albums-section').style.display = 'block';
+        document.getElementById('albums-tab').classList.add('active');
+        document.getElementById('songs-tab').classList.remove('active');
+    }
+</script>
