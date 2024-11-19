@@ -18,9 +18,13 @@ namespace JamSpotApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(Guid userId)
         {
-            return View();
+            var songs = context.Songs
+                .Where(s => s.UserId == userId)
+                .ToList();
+
+            return PartialView("All", songs);
         }
     }
 }
