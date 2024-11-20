@@ -21,6 +21,11 @@ namespace JamSpotApp.Controllers
         // GET: /Group/All - Display all group
         public async Task<IActionResult> All()
         {
+            var user = await _userManager.GetUserAsync(User);
+
+            var userHasGroup = await context.Groups
+                .AnyAsync(g => g.Creator.Id == user.Id);
+
             var model = await context.Groups
                 .Include(p => p.Creator)
                 .Select(p => new GroupViewModel()
@@ -32,6 +37,8 @@ namespace JamSpotApp.Controllers
                 })
                 .AsNoTracking()
                 .ToListAsync();
+
+            ViewBag.UserHasGroup = userHasGroup;
 
             return View(model);
         }

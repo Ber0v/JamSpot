@@ -1,6 +1,11 @@
 ﻿@using JamSpotApp.Models.Group
 @model IEnumerable<GroupViewModel>
 
+@if (!(bool)ViewBag.UserHasGroup)
+{
+    <a asp-action="CreateGroup" class="btn btn-primary float-end rounded-pill">Create Group</a>
+}
+
 <h2 class="mt-3 text-center">All Groups</h2>
 <hr />
 <div class="container">
