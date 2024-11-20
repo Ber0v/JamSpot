@@ -1,0 +1,51 @@
+﻿#dropdownMenu {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    background-color: #3c3c3c; /* Вашият цвят */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    color: #fff; /* За да изглежда текстът видим на тъмен фон */
+}
+
+.dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+    color: #fff; /* Текстът на елементите */
+}
+
+    .dropdown-item:hover {
+        background-color: #555; /* Леко по-светъл нюанс за hover ефект */
+        color: #fff;
+    }
+
+.dropdown-header {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #ccc; /* Текстът на заглавията */
+    padding: 5px 10px;
+    background-color: #3c3c3c; /* Същият тъмен цвят като менюто */
+    border-bottom: 1px solid #555; /* Линия за разграничаване */
+}
+
+.dropdown-item img {
+    vertical-align: middle;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.list-group-item {
+    background-color: #3c3c3c; /* Тъмният фон */
+    color: #fff; /* Бял текст за по-добър контраст */
+    border: none; /* Премахваме стандартната граница */
+}
+
+    .list-group-item:hover {
+        background-color: #555; /* По-светъл цвят за hover ефекта */
+        color: #fff; /* Текстът остава бял */
+    }
+
+.list-group-item-action {
+    transition: background-color 0.3s ease; /* Добавяме плавен преход за hover */
+}
