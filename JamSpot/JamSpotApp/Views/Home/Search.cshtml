@@ -1,0 +1,47 @@
+﻿@using JamSpotApp.Models.Home
+@model SearchResultsViewModel
+<link rel="stylesheet" href="~/css/Home.css" asp-append-version="true" />
+@{
+    ViewData["Title"] = "Search Results";
+}
+
+<div class="container mt-5">
+
+    <div class="mt-4">
+        @if (Model.Users.Any())
+        {
+            <h3>Users</h3>
+            <div class="list-group mb-4">
+                @foreach (var user in Model.Users)
+                {
+                    <a href="/Feed/UserDetails/@user.Id" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <img src="@user.AvatarUrl" alt="@user.UserName" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                        <span>@user.UserName</span>
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <p>No users found.</p>
+        }
+
+        @if (Model.Groups.Any())
+        {
+            <h3>Groups</h3>
+            <div class="list-group">
+                @foreach (var group in Model.Groups)
+                {
+                    <a href="/Group/Details/@group.Id" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <img src="@group.LogoUrl" alt="@group.GroupName" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                        <span>@group.GroupName</span>
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <p>No groups found.</p>
+        }
+    </div>
+</div>
