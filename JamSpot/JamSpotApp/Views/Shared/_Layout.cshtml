@@ -42,32 +42,17 @@
                         </li>
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="Feed" role="button">Feed</a>
-                                <ul class="dropdown-menu custom-navbar dropdown-menu-dark">
-                                    <li><a class="dropdown-item" asp-controller="Feed" asp-action="All">All</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-controller="Feed" asp-action="CreatePost">Create Post</a></li>
-                                </ul>
+                            <li class="nav-item">
+                                    <li><a class="nav-link" asp-controller="Feed" asp-action="All">Feed</a></li>
                             </li>
 
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="Group" role="button">Group</a>
-                                <ul class="dropdown-menu custom-navbar dropdown-menu-dark">
-                                    <li><a class="dropdown-item" asp-controller="Group" asp-action="All">All</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-controller="Group" asp-action="CreateGroup">Create Group</a></li>
-                                </ul>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">Events</a>
-                                <ul class="dropdown-menu custom-navbar dropdown-menu-dark">
-                                    <li><a class="dropdown-item" asp-controller="Event" asp-action="All">All Events</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-controller="Event" asp-action="CreateEvent">Create Event</a></li>
-                                </ul>
+                            <li class="nav-item">
+                                    <li><a class="nav-link" asp-controller="Group" asp-action="All">Groups</a></li>
                             </li>
                         }
+                            <li class="nav-item dropdown">
+                                    <li><a class="nav-link" asp-controller="Event" asp-action="All">Events</a></li>
+                            </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <partial name="_LoginPartial" />
