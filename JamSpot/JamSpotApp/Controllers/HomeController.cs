@@ -1,5 +1,6 @@
 using JamSpotApp.Data;
 using JamSpotApp.Models;
+using JamSpotApp.Models.Home;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -22,6 +23,46 @@ namespace JamSpotApp.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Search(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return View(new SearchResultsViewModel
+                {
+                    Users = new List<UserResultViewModel>(),
+                    Groups = new List<GroupResultViewModel>()
+                });
+            }
+
+            var users = await _context.Users
+                .Where(u => EF.Functions.Like(u.UserName, $"%{query}%"))
+                .Select(u => new UserResultViewModel
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    AvatarUrl = u.ProfilePicture
+                })
+                .ToListAsync();
+
+            var groups = await _context.Groups
+                .Where(g => EF.Functions.Like(g.GroupName, $"%{query}%"))
+                .Select(g => new GroupResultViewModel
+                {
+                    Id = g.Id,
+                    GroupName = g.GroupName,
+                    LogoUrl = g.Logo
+                })
+                .ToListAsync();
+
+            var viewModel = new SearchResultsViewModel
+            {
+                Users = users,
+                Groups = groups
+            };
+
+            return View(viewModel);
+        }
+
         [HttpGet]
         public async Task<IActionResult> AutoComplete(string query)
         {
@@ -32,12 +73,12 @@ namespace JamSpotApp.Controllers
 
             var users = await _context.Users
                 .Where(u => EF.Functions.Like(u.UserName, $"%{query}%"))
-                .Select(u => new { u.Id, u.UserName })
+                .Select(u => new { u.Id, u.UserName, avatarUrl = u.ProfilePicture })
                 .ToListAsync();
 
             var groups = await _context.Groups
                 .Where(g => EF.Functions.Like(g.GroupName, $"%{query}%"))
-                .Select(g => new { g.Id, g.GroupName })
+                .Select(g => new { g.Id, g.GroupName, logoUrl = g.Logo })
                 .ToListAsync();
 
             return Json(new { users = users, groups = groups });
