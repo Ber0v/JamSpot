@@ -1,47 +1,61 @@
 ﻿@using JamSpotApp.Models.User
 @model EditUserViewModel
 
-<div class="container mt-4">
-    <h2>Edit User</h2>
-    <form asp-action="Edit" method="post" enctype="multipart/form-data">
-        <input type="hidden" asp-for="Id" />
+<link rel="stylesheet" href="~/css/CreateGroup.css" asp-append-version="true" />
 
-        <div class="form-group">
-            <label asp-for="UserName" class="control-label">User Name</label>
-            <input asp-for="UserName" class="form-control" />
-            <span asp-validation-for="UserName" class="text-danger"></span>
-        </div>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+    <div class="Group-container">
+        <h2>Edit Group</h2>
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+            <div class="Group-picture-container">
+                <img id="GroupImage"
+                     src="@Model.ExistingPicturePath"
+                     alt="Profile Picture"
+                     class="Group-picture"
+                     onclick="document.getElementById('fileInput').click();" />
+                <input type="file"
+                       id="fileInput"
+                       class="file-input"
+                       asp-for="ProfilePicture"
+                       accept="image/*"
+                       onchange="previewImage(event)" />
+            </div>
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label">User Name</label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
 
-        <div class="form-group">
-            <label asp-for="UserBio" class="control-label">Bio</label>
-            <textarea asp-for="UserBio" class="form-control"></textarea>
-            <span asp-validation-for="UserBio" class="text-danger"></span>
-        </div>
+            <div class="form-group">
+                <label asp-for="UserBio" class="control-label">Bio</label>
+                <textarea asp-for="UserBio" class="form-control"></textarea>
+                <span asp-validation-for="UserBio" class="text-danger"></span>
+            </div>
 
-        <div class="form-group">
-            <label asp-for="Instrument" class="control-label">Instrument</label>
-            <input asp-for="Instrument" class="form-control" />
-            <span asp-validation-for="Instrument" class="text-danger"></span>
-        </div>
+            <div class="form-group">
+                <label asp-for="Instrument" class="control-label">Instrument</label>
+                <input asp-for="Instrument" class="form-control" />
+                <span asp-validation-for="Instrument" class="text-danger"></span>
+            </div>
 
-        <div class="form-group">
-            <label>Current Profile Picture</label><br />
-            @if (!string.IsNullOrEmpty(Model.ExistingPicturePath))
+            <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+            @if (Model != null)
             {
-                <img src="@Model.ExistingPicturePath" class="img-thumbnail mb-3" alt="Current ProfilePicture" width="150" />
+                <a asp-controller="User" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger mt-3">Delete</a>
             }
-        </div>
-
-        <div class="form-group">
-            <label asp-for="ProfilePicture" class="control-label">Upload New Profile Picture</label>
-            <input asp-for="ProfilePicture" type="file" class="form-control-file" />
-            <span asp-validation-for="ProfilePicture" class="text-danger"></span>
-        </div>
-
-        <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
-        @if (Model != null)
-        {
-            <a asp-controller="User" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger mt-3">Delete</a>
-        }
-    </form>
+        </form>
+    </div>
 </div>
+<script>
+
+    // Image preview function
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function () {
+            const output = document.getElementById('GroupImage');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
