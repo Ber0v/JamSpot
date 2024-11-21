@@ -1,18 +1,18 @@
 ﻿@using JamSpotApp.Models.User
 @model EditUserViewModel
 
-<link rel="stylesheet" href="~/css/CreateGroup.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/User.css" asp-append-version="true" />
 
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 50vh;">
-    <div class="Group-container">
-        <h2>Edit Group</h2>
+    <div class="User-container">
+        <h2>Edit User</h2>
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="Id" />
-            <div class="Group-picture-container">
-                <img id="GroupImage"
+            <div class="User-picture-container">
+                <img id="UserImage"
                      src="@Model.ExistingPicturePath"
                      alt="Profile Picture"
-                     class="Group-picture"
+                     class="User-picture"
                      onclick="document.getElementById('fileInput').click();" />
                 <input type="file"
                        id="fileInput"
@@ -53,7 +53,7 @@
     function previewImage(event) {
         const reader = new FileReader();
         reader.onload = function () {
-            const output = document.getElementById('GroupImage');
+            const output = document.getElementById('UserImage');
             output.src = reader.result;
         };
         reader.readAsDataURL(event.target.files[0]);
