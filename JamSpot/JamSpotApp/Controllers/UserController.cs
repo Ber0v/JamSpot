@@ -13,12 +13,15 @@ namespace JamSpotApp.Controllers
     {
         private readonly JamSpotDbContext context;
         private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public UserController(JamSpotDbContext _context, UserManager<User> userManager)
+        public UserController(JamSpotDbContext _context, UserManager<User> userManager, SignInManager<User> signInManager)
         {
             context = _context;
             _userManager = userManager;
+            _signInManager = signInManager;
         }
+
         [HttpGet]
         public async Task<IActionResult> All(Guid? id)
         {
@@ -95,6 +98,7 @@ namespace JamSpotApp.Controllers
             var user = await context.Users.FindAsync(id);
 
             user.UserName = model.UserName;
+            user.NormalizedUserName = _userManager.NormalizeName(model.UserName);
             user.UserBio = model.UserBio;
             user.Instrument = model.Instrument;
 
@@ -115,7 +119,15 @@ namespace JamSpotApp.Controllers
                 user.ProfilePicture = UploadLogo(model.ProfilePicture);
             }
 
+            // Обновяване на SecurityStamp
+            await _userManager.UpdateSecurityStampAsync(user);
+
             await context.SaveChangesAsync();
+
+            // Изход и вход с актуализирани данни
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            await _signInManager.SignInAsync(user, isPersistent: false);
+
             return RedirectToAction(nameof(All));
         }
 
