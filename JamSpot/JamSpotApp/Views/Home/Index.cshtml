@@ -1,6 +1,4 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿
 <link rel="stylesheet" href="~/css/Home.css" asp-append-version="true" />
 
 <div class="container">
@@ -16,6 +14,12 @@
                 <button class="btn btn-primary" type="submit">Search</button>
             </form>
         </div>
+
+        <h3 class="d-flex justify-content-center mt-5">Events</h3>
+        <partial name="Events" model="Model.Events" />
+
+        <h3 class="d-flex justify-content-center mt-5">Posts</h3>
+        <partial name="Posts" model="Model.Posts" />
     </main>
 </div>
 
