@@ -46,7 +46,7 @@
                             <p class="mb-0"><strong>Date:</strong> @eventItem.Date</p>
                             <p class="mb-0"><strong>Hour:</strong> @eventItem.Hour</p>
                         </div>
-                        @if (User?.Identity?.Name == eventItem.Organizer)
+                        @if (User?.Identity?.Name == eventItem.Organizer || User.IsInRole("Admin"))
                         {
                             <a asp-action="Delete" asp-route-id="@eventItem.Id" class="btn btn-danger">Delete</a>
                         }

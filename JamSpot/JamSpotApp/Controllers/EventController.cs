@@ -96,21 +96,28 @@ namespace JamSpotApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var model = await context.Events
-                .Where(p => p.Id == id)
-                .AsNoTracking()
-                .Select(e => new DeleteEventViewModel()
-                {
-                    Id = e.Id,
-                    EventName = e.EventName,
-                    Organizer = e.Organizer.UserName
-                })
-                .FirstOrDefaultAsync();
+            var eventToDelete = await context.Events
+                .Include(e => e.Organizer)
+                .FirstOrDefaultAsync(e => e.Id == id);
 
-            if (model == null)
+            if (eventToDelete == null)
             {
                 return NotFound();
             }
+
+            // Проверка дали текущият потребител е организатор или администратор
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (eventToDelete.Organizer.Id != currentUser.Id && !User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
+            var model = new DeleteEventViewModel
+            {
+                Id = eventToDelete.Id,
+                EventName = eventToDelete.EventName,
+                Organizer = eventToDelete.Organizer.UserName
+            };
 
             return View(model);
         }
@@ -120,11 +127,19 @@ namespace JamSpotApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(DeleteEventViewModel model)
         {
-            var eventToDelete = await context.Events.FindAsync(model.Id);
+            var eventToDelete = await context.Events
+                .Include(e => e.Organizer) // Включваме организатора за проверка
+                .FirstOrDefaultAsync(e => e.Id == model.Id);
 
             if (eventToDelete == null)
             {
                 return NotFound();
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (eventToDelete.Organizer.Id != currentUser.Id && !User.IsInRole("Admin"))
+            {
+                return Forbid(); // Забранен достъп
             }
 
             context.Events.Remove(eventToDelete);
