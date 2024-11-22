@@ -18,7 +18,7 @@
             <!-- Instrument -->
             <p><strong>Instrument:</strong>@Model.Genre</p>
 
-            @if ((User?.Identity?.Name == Model.Creator) || User.IsInRole("Admin"))
+            @if (User?.Identity?.Name == Model.Creator)
             {
                 <!-- Edit Button -->
                 <div class="d-flex justify-content-center align-items-center mt-3">
