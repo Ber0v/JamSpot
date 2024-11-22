@@ -48,6 +48,8 @@ namespace JamSpotApp
 
             var app = builder.Build();
 
+            User(app);
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
@@ -76,6 +78,47 @@ namespace JamSpotApp
             app.MapRazorPages();
 
             app.Run();
+        }
+
+        private static void User(WebApplication app)
+        {
+            // Създаване на роли и потребител при стартиране
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+                var userManager = services.GetRequiredService<UserManager<User>>();
+
+                // Роли, които искаме да добавим
+                string[] roleNames = { "Admin", "User" };
+                foreach (var roleName in roleNames)
+                {
+                    if (!roleManager.RoleExistsAsync(roleName).Result)
+                    {
+                        roleManager.CreateAsync(new IdentityRole<Guid> { Name = roleName }).Wait();
+                    }
+                }
+
+                // Добавяне на администраторски потребител
+                var adminEmail = "admin@example.com";
+                var adminUser = userManager.FindByEmailAsync(adminEmail).Result;
+
+                if (adminUser == null)
+                {
+                    var newAdmin = new User
+                    {
+                        UserName = "Admin",
+                        Email = adminEmail,
+                        EmailConfirmed = true
+                    };
+                    var result = userManager.CreateAsync(newAdmin, "AdminPassword123!").Result;
+
+                    if (result.Succeeded)
+                    {
+                        userManager.AddToRoleAsync(newAdmin, "Admin").Wait();
+                    }
+                }
+            }
         }
 
         private static void ConfigureIdentity(IdentityOptions options, WebApplicationBuilder builder)
