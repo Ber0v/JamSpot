@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using JamSpotApp.Data.Models
+@using Microsoft.AspNetCore.Http
 
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
@@ -11,6 +12,7 @@
             @{
                 var user = await UserManager.GetUserAsync(User);
                 var profilePictureUrl = user?.ProfilePicture ?? "https://static.vecteezy.com/system/resources/thumbnails/046/300/546/small/avatar-user-profile-person-icon-gender-neutral-silhouette-profile-picture-suitable-for-social-media-profiles-icons-screensavers-free-png.png";
+                var isAdmin = await UserManager.IsInRoleAsync(user, "Admin");
             }
 
             <a href="#"
@@ -22,7 +24,23 @@
                 <img src="@profilePictureUrl" style="width:30px;" class="rounded-circle" />
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                <li><a asp-controller="User" asp-action="All" class="dropdown-item">My profile</a></li>
+                <li><a asp-controller="User" asp-action="All" class="dropdown-item" style="color: #000; text-decoration: none;">My profile</a></li>
+                @if (isAdmin)
+                {
+                    <li class="dropdown-item">
+                        <form asp-area="Admin" asp-controller="Admin" asp-action="ToggleAdminMode" method="post">
+                            <div class="form-check form-switch">
+                                <input type="hidden" name="hiddenIsAdminModeEnabled" value="false" />
+                                <input class="form-check-input" type="checkbox" id="adminModeToggle"
+                                       name="isAdminModeEnabled" value="true"
+                                       onchange="this.form.submit()" />
+                                <label class="form-check-label" for="adminModeToggle">
+                                    Admin Mode
+                                </label>
+                            </div>
+                        </form>
+                    </li>
+                }
                 <li>
                     <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" method="post" style="display:inline;">
                         <button type="submit" class="dropdown-item" style="color: #000; text-decoration: none;">

@@ -1,0 +1,111 @@
+﻿@page
+@model JamSpotApp.Areas.Admin.Pages.AdminEventsModel
+
+@{
+    ViewData["Title"] = "Manage Events";
+}
+
+<h2 class="text-center">Manage Events</h2>
+<hr />
+
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        @foreach (var eventItem in Model.Events)
+        {
+            <div class="col">
+                <div class="card rounded-4 custom-navbar">
+                    <div class="card-header bg-dark text-white rounded-4">
+                        <h5 class="card-title mb-1">@eventItem.EventName</h5>
+                        @if (eventItem.Price == 0)
+                        {
+                            <span class="badge bg-success">Free</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">@eventItem.Price BGN</span>
+                        }
+                        <p class="card-text mb-1 float-end"><strong>Organizer:</strong> @eventItem.Organizer</p>
+                    </div>
+
+                    <div class="card-body">
+                        <p class="card-text mb-1"><strong>Description:</strong> @eventItem.EventDescription</p>
+                        <p class="card-text">
+                            <strong>Location:</strong>
+                            @if (Uri.IsWellFormedUriString(eventItem.Location, UriKind.Absolute))
+                            {
+                                <a href="@eventItem.Location" target="_blank" class="btn btn-primary btn-sm">Open Location</a>
+                            }
+                            else
+                            {
+                                @eventItem.Location
+                            }
+                        </p>
+                    </div>
+
+                    <div class="card-footer d-flex justify-content-between align-items-center border-secondary">
+                        <div>
+                            <p class="mb-0"><strong>Date:</strong> @eventItem.Date</p>
+                            <p class="mb-0"><strong>Hour:</strong> @eventItem.Hour</p>
+                        </div>
+                        <button class="btn btn-danger btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal"
+                                data-id="@eventItem.Id"
+                                data-name="@eventItem.EventName">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content custom-navbar">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong id="eventName"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="confirmDelete" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let deleteId = null;
+
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        deleteId = button.getAttribute('data-id');
+        const eventName = button.getAttribute('data-name');
+        document.getElementById('eventName').textContent = eventName;
+    });
+
+    document.getElementById('confirmDelete').addEventListener('click', function () {
+        if (deleteId) {
+            fetch(`?handler=Delete&id=${deleteId}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to delete the event.');
+                }
+            });
+        }
+    });
+</script>
