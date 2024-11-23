@@ -48,7 +48,7 @@ namespace JamSpotApp
 
             var app = builder.Build();
 
-            User(app);
+            UserRoles(app);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -58,7 +58,6 @@ namespace JamSpotApp
 
                 // За 404 грешки
                 app.UseStatusCodePagesWithReExecute("/Error/404");
-
 
                 // HSTS
                 app.UseHsts();
@@ -83,7 +82,7 @@ namespace JamSpotApp
             app.Run();
         }
 
-        private static void User(WebApplication app)
+        private static void UserRoles(WebApplication app)
         {
             // Създаване на роли и потребител при стартиране
             using (var scope = app.Services.CreateScope())
@@ -93,7 +92,7 @@ namespace JamSpotApp
                 var userManager = services.GetRequiredService<UserManager<User>>();
 
                 // Роли, които искаме да добавим
-                string[] roleNames = { "Admin", "User" };
+                string[] roleNames = { "Admin", "User", "GroupAdmin" };
                 foreach (var roleName in roleNames)
                 {
                     if (!roleManager.RoleExistsAsync(roleName).Result)
