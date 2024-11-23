@@ -7,11 +7,11 @@ namespace JamSpotApp.Controllers
 {
     using JamSpotApp.Models.Group;
     using Microsoft.AspNetCore.Identity;
+
     public class GroupController : Controller
     {
         private readonly JamSpotDbContext context;
         private readonly UserManager<User> _userManager;
-
         public GroupController(JamSpotDbContext _context, UserManager<User> userManager)
         {
             context = _context;
@@ -71,7 +71,19 @@ namespace JamSpotApp.Controllers
                 context.Groups.Add(group);
                 await context.SaveChangesAsync();
 
-                return RedirectToAction("All");
+                // Проверка и добавяне на потребителя в ролята "GroupAdmin"
+                if (!await _userManager.IsInRoleAsync(user, "GroupAdmin"))
+                {
+                    var result = await _userManager.AddToRoleAsync(user, "GroupAdmin");
+
+                    if (!result.Succeeded)
+                    {
+                        ModelState.AddModelError("", "Не успяхме да добавим потребителя в ролята 'GroupAdmin'.");
+                        return View(model);
+                    }
+                }
+
+                return RedirectToAction("Details", new { id = group.Id });
             }
 
             return View(model);
