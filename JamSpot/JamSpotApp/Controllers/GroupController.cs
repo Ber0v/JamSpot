@@ -24,7 +24,10 @@ namespace JamSpotApp.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             var userHasGroup = await context.Groups
-                .AnyAsync(g => g.Creator.Id == user.Id);
+                .AnyAsync(g => g.CreatorId == user.Id);
+
+            var isMemberOfGroup = await context.Groups
+                .AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
 
             var model = await context.Groups
                 .Include(p => p.Creator)
@@ -39,6 +42,7 @@ namespace JamSpotApp.Controllers
                 .ToListAsync();
 
             ViewBag.UserHasGroup = userHasGroup;
+            ViewBag.IsMemberOfGroup = isMemberOfGroup;
 
             return View(model);
         }
@@ -58,6 +62,19 @@ namespace JamSpotApp.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
+
+                // Проверка дали потребителят вече е създал група
+                var userHasGroup = await context.Groups.AnyAsync(g => g.CreatorId == user.Id);
+
+                // Проверка дали потребителят е член на друга група
+                var isMemberOfGroup = await context.Groups
+                    .AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
+
+                if (userHasGroup || isMemberOfGroup)
+                {
+                    ModelState.AddModelError("", "Не можете да създадете група, ако вече сте създали група или сте член на група.");
+                    return View(model);
+                }
 
                 var group = new Group
                 {
@@ -89,12 +106,76 @@ namespace JamSpotApp.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddMember(Guid groupId, Guid userId)
+        {
+            var group = await context.Groups
+                .Include(g => g.Members)
+                .FirstOrDefaultAsync(g => g.Id == groupId);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            // Проверка дали текущият потребител е създателят на групата
+            if (group.CreatorId != currentUser.Id)
+            {
+                return Forbid();
+            }
+
+            var userToAdd = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (userToAdd == null)
+            {
+                ModelState.AddModelError("", "Потребителят не е намерен.");
+                return RedirectToAction("Details", new { id = groupId });
+            }
+
+            // Проверка дали потребителят вече е член на групата
+            if (group.Members.Any(m => m.Id == userToAdd.Id))
+            {
+                ModelState.AddModelError("", "Потребителят вече е член на групата.");
+                return RedirectToAction("Details", new { id = groupId });
+            }
+
+            // Проверка дали потребителят вече е създал група или е член на друга група
+            var userHasGroup = await context.Groups.AnyAsync(g => g.CreatorId == userToAdd.Id);
+            var isMemberOfGroup = await context.Groups
+                .AnyAsync(g => g.Members.Any(m => m.Id == userToAdd.Id));
+
+            if (userHasGroup || isMemberOfGroup)
+            {
+                ModelState.AddModelError("", "Потребителят не може да бъде добавен, защото вече е създател или член на друга група.");
+                return RedirectToAction("Details", new { id = groupId });
+            }
+
+            // Добавяне на потребителя към групата
+            group.Members.Add(userToAdd);
+            await context.SaveChangesAsync();
+
+            // Добавяне на потребителя в ролята "GroupMember", ако не е вече в нея
+            if (!await _userManager.IsInRoleAsync(userToAdd, "GroupMember"))
+            {
+                await _userManager.AddToRoleAsync(userToAdd, "GroupMember");
+            }
+
+            return RedirectToAction("Details", new { id = groupId });
+        }
+
+
         // GET: /Group/Details - Показва групата на текущия потребител
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
             var model = await context.Groups
                 .Where(g => g.Id == id)
+                .Include(g => g.Members)
+                .Include(g => g.Creator)
                 .AsNoTracking()
                 .Select(g => new GroupDetailsViewModel()
                 {
@@ -104,8 +185,42 @@ namespace JamSpotApp.Controllers
                     Description = g.Description,
                     Genre = g.Genre,
                     Creator = g.Creator.UserName,
+                    CreatorId = g.CreatorId,
+                    Members = g.Members.Select(m => new GroupMemberViewModel
+                    {
+                        UserId = m.Id,
+                        UserName = m.UserName,
+                        Instrument = m.Instrument
+                    }).ToList(),
+                    IsGroupAdmin = g.CreatorId == currentUser.Id
                 })
                 .FirstOrDefaultAsync();
+
+            if (model == null)
+            {
+                return NotFound();
+            }
+
+            // Проверка дали текущият потребител е създателят на групата
+            var currentUserId = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (currentUserId == model.CreatorId.ToString())
+            {
+                // Извличане на потребители, които могат да бъдат добавени
+                var availableUsers = await _userManager.Users
+                    .Where(u => !context.Groups.Any(g => g.CreatorId == u.Id) &&
+                                !context.Groups.Any(g => g.Members.Any(m => m.Id == u.Id)) &&
+                                u.Id != model.CreatorId) // Изключваме създателя
+                    .Select(u => new UserSelectionViewModel
+                    {
+                        UserId = u.Id,
+                        UserName = u.UserName,
+                        Instrument = u.Instrument
+                    })
+                    .ToListAsync();
+
+                ViewBag.AvailableUsers = availableUsers;
+            }
 
             return View(model);
         }
@@ -253,6 +368,68 @@ namespace JamSpotApp.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(All));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveMember(Guid groupId, Guid userId)
+        {
+            var group = await context.Groups
+                .Include(g => g.Members)
+                .FirstOrDefaultAsync(g => g.Id == groupId);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            // Check if the current user is the creator of the group
+            if (group.CreatorId != currentUser.Id)
+            {
+                return Forbid();
+            }
+
+            var userToRemove = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (userToRemove == null)
+            {
+                ModelState.AddModelError("", "Потребителят не е намерен.");
+                return RedirectToAction("Details", new { id = groupId });
+            }
+
+            // Prevent removing the group creator
+            if (userToRemove.Id == group.CreatorId)
+            {
+                ModelState.AddModelError("", "Не можете да премахнете създателя на групата.");
+                return RedirectToAction("Details", new { id = groupId });
+            }
+
+            // Check if the user is a member of the group
+            if (!group.Members.Any(m => m.Id == userToRemove.Id))
+            {
+                ModelState.AddModelError("", "Потребителят не е член на групата.");
+                return RedirectToAction("Details", new { id = groupId });
+            }
+
+            // Remove the user from the group
+            group.Members.Remove(userToRemove);
+            await context.SaveChangesAsync();
+
+            // Remove the "GroupMember" role if the user is no longer part of any group
+            var isStillMember = await context.Groups.AnyAsync(g => g.Members.Any(m => m.Id == userToRemove.Id));
+            var isCreator = await context.Groups.AnyAsync(g => g.CreatorId == userToRemove.Id);
+
+            if (!isStillMember && !isCreator)
+            {
+                if (await _userManager.IsInRoleAsync(userToRemove, "GroupMember"))
+                {
+                    await _userManager.RemoveFromRoleAsync(userToRemove, "GroupMember");
+                }
+            }
+
+            return RedirectToAction("Details", new { id = groupId });
         }
 
         private string UploadLogo(IFormFile file)
