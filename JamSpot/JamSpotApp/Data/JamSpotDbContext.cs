@@ -33,10 +33,33 @@ namespace JamSpotApp.Data
                 .HasForeignKey(e => e.OrganizerId);
 
             builder.Entity<Group>()
+                .HasMany(g => g.Members)
+                .WithMany(u => u.MemberOfGroups)
+                .UsingEntity<Dictionary<string, object>>(
+                    "UserGroup",
+                    j => j
+                        .HasOne<User>()
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict),
+                    j => j
+                        .HasOne<Group>()
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Restrict),
+                    j =>
+                    {
+                        j.HasKey("UserId", "GroupId");
+                        j.ToTable("UserGroups");
+                    }
+                );
+
+            builder.Entity<Group>()
                 .HasOne(g => g.Creator)
-                .WithMany(g => g.Groups)
+                .WithMany(u => u.CreatedGroups)
                 .HasForeignKey(g => g.CreatorId)
                 .OnDelete(DeleteBehavior.Cascade);
+
 
             // Configure Song relationships
             SongMethod(builder);

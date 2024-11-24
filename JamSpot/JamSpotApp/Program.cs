@@ -92,7 +92,7 @@ namespace JamSpotApp
                 var userManager = services.GetRequiredService<UserManager<User>>();
 
                 // Роли, които искаме да добавим
-                string[] roleNames = { "Admin", "User", "GroupAdmin" };
+                string[] roleNames = { "Admin", "User", "GroupAdmin", "GroupMember" };
                 foreach (var roleName in roleNames)
                 {
                     if (!roleManager.RoleExistsAsync(roleName).Result)
