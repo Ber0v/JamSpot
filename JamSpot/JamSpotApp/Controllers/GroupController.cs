@@ -125,6 +125,13 @@ namespace JamSpotApp.Controllers
                 return NotFound();
             }
 
+            // Проверка дали текущият потребител е създателят
+            var user = await _userManager.GetUserAsync(User);
+            if (group.Creator.Id != user.Id)
+            {
+                return Forbid(); // или return Unauthorized();
+            }
+
             var model = new CreateGroupViewModel()
             {
                 GroupName = group.GroupName,
@@ -145,11 +152,21 @@ namespace JamSpotApp.Controllers
                 return View(model);
             }
 
-            var group = await context.Groups.FindAsync(id);
+            var group = await context.Groups
+                .Include(g => g.Creator)
+                .FirstOrDefaultAsync(g => g.Id == id);
 
             if (group == null)
             {
                 return NotFound();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            // Проверка дали текущият потребител е създателят
+            if (group.Creator.Id != user.Id)
+            {
+                return Forbid(); // или return Unauthorized();
             }
 
             group.GroupName = model.GroupName;
@@ -174,28 +191,38 @@ namespace JamSpotApp.Controllers
             }
 
             await context.SaveChangesAsync();
-            return RedirectToAction(nameof(All));
+            return RedirectToAction("Details", new { id = group.Id });
+
         }
 
         // GET: /Group/Delete/{id}
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var model = await context.Groups
-                .Where(p => p.Id == id)
+            var group = await context.Groups
+                .Include(g => g.Creator)
                 .AsNoTracking()
-                .Select(e => new DeleteGroupViewModel()
-                {
-                    Id = e.Id,
-                    GroupName = e.GroupName,
-                    Creator = e.Creator.UserName
-                })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (model == null)
+            if (group == null)
             {
                 return NotFound();
             }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            // Проверка дали текущият потребител е създателят
+            if (group.Creator.Id != user.Id)
+            {
+                return Forbid(); // или return Unauthorized();
+            }
+
+            var model = new DeleteGroupViewModel()
+            {
+                Id = group.Id,
+                GroupName = group.GroupName,
+                Creator = group.Creator.UserName
+            };
 
             return View(model);
         }
@@ -205,11 +232,21 @@ namespace JamSpotApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(DeleteGroupViewModel model)
         {
-            var groupToDelete = await context.Groups.FindAsync(model.Id);
+            var groupToDelete = await context.Groups
+                .Include(g => g.Creator)
+                .FirstOrDefaultAsync(g => g.Id == model.Id);
 
             if (groupToDelete == null)
             {
                 return NotFound();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            // Проверка дали текущият потребител е създателят
+            if (groupToDelete.Creator.Id != user.Id)
+            {
+                return Forbid(); // или return Unauthorized();
             }
 
             context.Groups.Remove(groupToDelete);
