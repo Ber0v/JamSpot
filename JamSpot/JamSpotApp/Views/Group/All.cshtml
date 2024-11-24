@@ -1,7 +1,7 @@
 ﻿@using JamSpotApp.Models.Group
 @model IEnumerable<GroupViewModel>
 
-@if (!(bool)ViewBag.UserHasGroup)
+@if (!(bool)ViewBag.UserHasGroup && !(bool)ViewBag.IsMemberOfGroup)
 {
     <a asp-action="CreateGroup" class="btn btn-primary float-end rounded-pill">Create Group</a>
 }

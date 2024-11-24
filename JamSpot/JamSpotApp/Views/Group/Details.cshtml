@@ -4,33 +4,66 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8 text-center">
-            <!-- Profile Picture -->
+            <!-- Group Logo -->
             <div class="d-flex justify-content-center">
-                <img src="@Model.Logo" alt="Profile Picture" class="rounded-circle border border-secondary" style="width: 120px; height: 120px;">
+                <img src="@Model.Logo" alt="Group Logo" class="rounded-circle border border-secondary" style="width: 120px; height: 120px;">
             </div>
 
-            <!-- Username -->
+            <!-- Group Name -->
             <h3 class="mt-3">@Model.GroupName</h3>
 
-            <!-- Bio -->
+            <!-- Description -->
             <p class="text-muted">@Model.Description</p>
 
-            <!-- Instrument -->
-            <p><strong>Instrument:</strong>@Model.Genre</p>
+            <!-- Genre -->
+            <p><strong>Genre:</strong> @Model.Genre</p>
 
-            @if (User?.Identity?.Name == Model.Creator)
+            <!-- Members Section -->
+            <h4 class="mt-5">Членове</h4>
+            <ul class="list-group">
+                @foreach (var member in Model.Members)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <a asp-controller="User" asp-action="All" asp-route-id="@member.UserId">@member.UserName</a>
+                            - @member.Instrument
+                        </div>
+                        @if (Model.IsGroupAdmin && member.UserId != Model.CreatorId)
+                        {
+                            <form asp-action="RemoveMember" method="post" onsubmit="return confirm('Сигурни ли сте, че искате да премахнете този член?');">
+                                <input type="hidden" name="groupId" value="@Model.Id" />
+                                <input type="hidden" name="userId" value="@member.UserId" />
+                                <button type="submit" class="btn btn-sm btn-danger">Премахни</button>
+                            </form>
+                        }
+                    </li>
+                }
+            </ul>
+
+
+            @if (User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.CreatorId.ToString())
             {
-                <!-- Edit Button -->
+                <!-- Form for Adding New Member -->
+                <form asp-action="AddMember" method="post" class="mt-3">
+                    <input type="hidden" name="groupId" value="@Model.Id" />
+                    <div class="input-group">
+                        <select name="userId" class="form-control" required>
+                            <option value="">Изберете потребител</option>
+                            @foreach (var user in ViewBag.AvailableUsers as List<UserSelectionViewModel>)
+                            {
+                                <option value="@user.UserId">@user.UserName - @user.Instrument</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-primary">Добави Член</button>
+                    </div>
+                </form>
+
+                <!-- Edit and Delete Buttons -->
                 <div class="d-flex justify-content-center align-items-center mt-3">
                     <a asp-controller="Group" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-light ms-4">Edit Group</a>
-
-                <!-- Delete Button -->
                     <a asp-controller="Group" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-4">Delete Group</a>
                 </div>
             }
-            <!-- Tabs for Posts, Saved, and Tagged -->
-            <ul class="nav nav-tabs mt-4 justify-content-center border-bottom border-secondary">
-            </ul>
 
             <!-- Placeholder for Posts -->
             <div class="text-center mt-5">
