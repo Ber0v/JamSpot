@@ -1,5 +1,5 @@
 ﻿@using JamSpotApp.Models.Group
-@model IEnumerable<GroupViewModel>
+@model GroupListViewModel
 
 @if (!(bool)ViewBag.UserHasGroup && !(bool)ViewBag.IsMemberOfGroup)
 {
@@ -10,7 +10,7 @@
 <hr />
 <div class="container">
     <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1 g-4">
-        @foreach (var group in Model)
+        @foreach (var group in Model.Groups)
         {
             <div class="col">
                 <div class="card rounded-5 custom-navbar" style="width: 200px">
@@ -25,11 +25,64 @@
                             <span class="badge bg-secondary">@group.Genre</span>
                         </div>
                         <div class="d-flex justify-content-center">
-                            <a asp-controller="Group" asp-action="Details" asp-route-id="@group.Id" class="btn btn-primary">View Group</a>
+                            <a asp-controller="Group" asp-action="Details" asp-route-id="@group.Id" class="btn btn-outline-primary">View Group</a>
                         </div>
                     </div>
                 </div>
             </div>
         }
     </div>
+    @if (Model.TotalPages > 1)
+    {
+        <!-- Контроли за пагинация -->
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                @if (Model.CurrentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="All" asp-route-pageNumber="@(Model.CurrentPage - 1)" aria-label="Previous">
+                            <span aria-hidden="true">Previous</span>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    if (i == Model.CurrentPage)
+                    {
+                        <li class="page-item active">
+                            <span class="page-link">@i</span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link bg-white text-dark" asp-action="All" asp-route-pageNumber="@i">@i</a>
+                        </li>
+                    }
+                }
+
+                @if (Model.CurrentPage < Model.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link bg-white text-dark" asp-action="All" asp-route-pageNumber="@(Model.CurrentPage + 1)" aria-label="Next">
+                            <span aria-hidden="true">Next</span>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link bg-white text-dark">Next</span>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
 </div>

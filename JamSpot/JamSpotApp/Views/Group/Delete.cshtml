@@ -14,8 +14,8 @@
 
                 <form asp-action="DeleteConfirmed" method="post">
                     <input type="hidden" asp-for="Id" />
-                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-outline-danger">Yes, Delete</button>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
                 </form>
             </div>
         }
