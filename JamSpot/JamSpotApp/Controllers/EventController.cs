@@ -19,12 +19,32 @@ namespace JamSpotApp.Controllers
             context = _context;
             _userManager = userManager;
         }
-        public async Task<IActionResult> All()
+
+        public async Task<IActionResult> All(int pageNumber = 1)
         {
-            var model = await context.Events
+            int pageSize = 4; // Брой на събитията на страница
+
+            var user = await _userManager.GetUserAsync(User);
+
+            var userHasGroup = await context.Groups
+                .AnyAsync(g => g.CreatorId == user.Id);
+
+            var isMemberOfGroup = await context.Groups
+                .AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
+
+            // Общо брой на събитията
+            var totalEvents = await context.Events.CountAsync(e => e.Date >= DateTime.Today);
+
+            // Изчисляване на общия брой страници
+            int totalPages = (int)Math.Ceiling(totalEvents / (double)pageSize);
+
+            // Извличане на събитията за текущата страница
+            var events = await context.Events
                 .Include(e => e.Organizer)
                 .Where(e => e.Date >= DateTime.Today)
                 .OrderBy(e => e.Date)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(e => new EventViewModel()
                 {
                     Id = e.Id,
@@ -39,8 +59,19 @@ namespace JamSpotApp.Controllers
                 .AsNoTracking()
                 .ToListAsync();
 
+            ViewBag.UserHasGroup = userHasGroup;
+            ViewBag.IsMemberOfGroup = isMemberOfGroup;
+
+            var model = new EventListViewModel
+            {
+                Events = events,
+                CurrentPage = pageNumber,
+                TotalPages = totalPages
+            };
+
             return View(model);
         }
+
 
         [HttpGet]
         public IActionResult CreateEvent()
