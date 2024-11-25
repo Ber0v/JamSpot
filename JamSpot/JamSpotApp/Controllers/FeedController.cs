@@ -22,6 +22,8 @@ namespace ArtJamWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> All()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+
             var model = await context.Posts
                 .Include(p => p.User)
                 .Select(p => new FeedViewModel()
@@ -87,43 +89,58 @@ namespace ArtJamWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var model = await context.Posts
-                .Where(p => p.Id == id)
-                .Include(p => p.User)
-                .AsNoTracking()
-                .Select(p => new CreatePostViewModel()
-                {
-                    Title = p.Title,
-                    Content = p.Content,
-                })
-                .FirstOrDefaultAsync();
+            var post = await context.Posts
+        .Include(p => p.User)
+        .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (model == null)
+            if (post == null)
             {
                 return NotFound();
             }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            // Проверка дали текущият потребител е създател на публикацията
+            if (post.User.Id != currentUser.Id)
+            {
+                return Forbid(); // или return Unauthorized();
+            }
+
+            var model = new CreatePostViewModel
+            {
+                Title = post.Title,
+                Content = post.Content
+            };
 
             return View(model);
         }
 
         // POST: Feed/Edit
         [HttpPost]
-        public async Task<IActionResult> Edit(CreatePostViewModel model, Guid Id)
+        public async Task<IActionResult> Edit(CreatePostViewModel model, Guid id)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            Post? entity = await context.Posts.FindAsync(Id);
+            var post = await context.Posts.Include(p => p.User).FirstOrDefaultAsync(p => p.Id == id);
 
-            if (entity == null)
+            if (post == null)
             {
                 return NotFound();
             }
 
-            entity.Title = model.Title;
-            entity.Content = model.Content;
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            // Проверка дали текущият потребител е създател на публикацията
+            if (post.User.Id != currentUser.Id)
+            {
+                return Forbid(); // или return Unauthorized();
+            }
+
+            post.Title = model.Title;
+            post.Content = model.Content;
 
             await context.SaveChangesAsync();
             return RedirectToAction(nameof(All));
@@ -132,16 +149,29 @@ namespace ArtJamWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var model = await context.Posts
-                .Where(p => p.Id == id)
-                .AsNoTracking()
-                .Select(p => new DelateViewModel()
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    Publisher = p.User != null ? p.User.UserName : (p.Group != null ? p.Group.GroupName : null)
-                })
-                .FirstOrDefaultAsync();
+            var post = await context.Posts
+        .Include(p => p.User)
+        .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (post == null)
+            {
+                return NotFound();
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            // Проверка дали текущият потребител е създател на публикацията
+            if (post.User.Id != currentUser.Id)
+            {
+                return Forbid(); // или return Unauthorized();
+            }
+
+            var model = new DelateViewModel
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Publisher = post.User?.UserName
+            };
 
             return View(model);
         }
@@ -149,11 +179,19 @@ namespace ArtJamWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(DelateViewModel model)
         {
-            var post = await context.Posts.FindAsync(model.Id);
+            var post = await context.Posts.Include(p => p.User).FirstOrDefaultAsync(p => p.Id == model.Id);
 
             if (post == null)
             {
                 return NotFound();
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            // Проверка дали текущият потребител е създател на публикацията
+            if (post.User.Id != currentUser.Id)
+            {
+                return Forbid(); // или return Unauthorized();
             }
 
             context.Posts.Remove(post);
