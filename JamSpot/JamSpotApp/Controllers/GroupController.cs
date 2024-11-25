@@ -19,8 +19,10 @@ namespace JamSpotApp.Controllers
         }
 
         // GET: /Group/All - Display all group
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(int pageNumber = 1)
         {
+            int pageSize = 10; // Брой на групите на страница
+
             var user = await _userManager.GetUserAsync(User);
 
             var userHasGroup = await context.Groups
@@ -29,8 +31,18 @@ namespace JamSpotApp.Controllers
             var isMemberOfGroup = await context.Groups
                 .AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
 
-            var model = await context.Groups
+            // Общо брой на групите
+            var totalGroups = await context.Groups.CountAsync();
+
+            // Изчисляване на общия брой страници
+            int totalPages = (int)Math.Ceiling(totalGroups / (double)pageSize);
+
+            // Извличане на групите за текущата страница
+            var groups = await context.Groups
                 .Include(p => p.Creator)
+                .OrderBy(p => p.GroupName)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(p => new GroupViewModel()
                 {
                     Id = p.Id,
@@ -44,8 +56,16 @@ namespace JamSpotApp.Controllers
             ViewBag.UserHasGroup = userHasGroup;
             ViewBag.IsMemberOfGroup = isMemberOfGroup;
 
+            var model = new GroupListViewModel
+            {
+                Groups = groups,
+                CurrentPage = pageNumber,
+                TotalPages = totalPages
+            };
+
             return View(model);
         }
+
 
         [HttpGet]
         public IActionResult CreateGroup()
