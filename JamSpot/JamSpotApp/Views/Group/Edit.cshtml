@@ -38,8 +38,12 @@
             <input asp-for="Genre" class="form-control" />
             <span asp-validation-for="Genre" class="text-danger"></span>
         </div>
-
-        <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+            <div class="mt-4">
+                <a asp-controller="Group" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-2">
+                    Delete Group
+                </a>
+                <button type="submit" class="btn btn-outline-primary ms-2">Save Changes</button>
+            </div>
     </form>
 </div>
 </div>

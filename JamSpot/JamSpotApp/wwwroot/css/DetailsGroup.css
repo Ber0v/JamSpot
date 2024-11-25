@@ -1,0 +1,116 @@
+﻿/* Основен фон и текстови цветове */
+body {
+    background-color: #2b2b2b;
+    color: #ffffff;
+}
+
+/* Контейнер за модал форма */
+.Group-container {
+    background-color: #3c3c3c;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    margin-top: 200px;
+}
+
+/* Полета за формата */
+.form-control {
+    background-color: #4a4a4a;
+    color: #ffffff;
+    border: 1px solid #666;
+    border-radius: 15px;
+    margin-bottom: 1px;
+    padding: 9px;
+}
+
+    /* Запазване на цвета на търсачката при фокусиране */
+    .form-control:focus {
+        background-color: #4a4a4a;
+        color: #ffffff;
+        border-color: #666;
+        outline: none;
+        box-shadow: none;
+    }
+
+/* Стил за бутона на падащото меню, за да изглежда като стандартен select */
+#userDropdownButton {
+    background-color: #4a4a4a;
+    color: #ffffff;
+    border: 1px solid #666;
+    border-radius: 15px;
+    padding: 9px;
+    width: 100%;
+    text-align: left;
+    position: relative;
+}
+
+    /* Добавяне на стрелка като при select */
+    #userDropdownButton::after {
+        content: '';
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #ffffff;
+        pointer-events: none;
+    }
+
+/* Премахване на иконата на стрелката по подразбиране от Bootstrap */
+.dropdown-toggle::after {
+    display: none;
+}
+
+/* Подравняване на текста и стрелката */
+#userDropdownButton .selected-user {
+    display: inline-block;
+    margin-right: 20px; /* Оставяме място за стрелката */
+}
+
+/* Стил за падащото меню */
+.custom-dropdown-menu {
+    background-color: #3c3c3c;
+    color: #ffffff;
+}
+
+    /* Стил за опциите в падащото меню */
+    .custom-dropdown-menu .dropdown-item {
+        color: #ffffff;
+    }
+
+        .custom-dropdown-menu .dropdown-item:hover,
+        .custom-dropdown-menu .dropdown-item:focus {
+            background-color: #4a4a4a;
+            color: #ffffff;
+        }
+
+    /* Стил за разделителя */
+    .custom-dropdown-menu .dropdown-divider {
+        border-top: 1px solid #666;
+    }
+
+    /* Стил за полето за търсене */
+    .custom-dropdown-menu #userSearchInput {
+        background-color: #4a4a4a;
+        color: #ffffff;
+        border: 1px solid #666;
+        border-radius: 15px;
+    }
+
+        /* Стил за текста в полето за търсене */
+        .custom-dropdown-menu #userSearchInput::placeholder {
+            color: #cccccc;
+        }
+
+    /* Стил за профилните снимки на потребителите */
+    .custom-dropdown-menu .user-option img {
+        width: 30px;
+        height: 30px;
+        object-fit: cover;
+        border-radius: 50%;
+    }

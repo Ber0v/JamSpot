@@ -190,7 +190,8 @@ namespace JamSpotApp.Controllers
                     {
                         UserId = m.Id,
                         UserName = m.UserName,
-                        Instrument = m.Instrument
+                        Instrument = m.Instrument,
+                        ProfilePicture = m.ProfilePicture
                     }).ToList(),
                     IsGroupAdmin = g.CreatorId == currentUser.Id
                 })
@@ -215,7 +216,8 @@ namespace JamSpotApp.Controllers
                     {
                         UserId = u.Id,
                         UserName = u.UserName,
-                        Instrument = u.Instrument
+                        Instrument = u.Instrument,
+                        ProfilePicture = u.ProfilePicture
                     })
                     .ToListAsync();
 
