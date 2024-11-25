@@ -1,30 +1,61 @@
-﻿@using JamSpotApp.Models.feed
-@model CreatePostViewModel
-<link rel="stylesheet" href="~/css/Feed.css" asp-append-version="true" />
+﻿@model JamSpotApp.Models.feed.CreatePostViewModel
 
+<link rel="stylesheet" href="~/css/Feed.css" asp-append-version="true" />
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 50vh;">
     <div class="Feed-container">
-<h2>New Musician Search Post</h2>
+        <h2>New Post</h2>
 
-<form asp-action="CreatePost" method="post">
-    <div class="form-group">
-        <label asp-for="Title" class="control-label">Title</label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
+        <form asp-action="CreatePost" method="post">
+            <!-- Debug Message -->
+            @if (ViewBag.DebugMessage != null)
+            {
+                <div class="alert alert-info">@Html.Raw(ViewBag.DebugMessage)</div>
+            }
 
-    <div class="form-group">
-        <label asp-for="Content" class="control-label">Content</label>
-        <textarea asp-for="Content" class="form-control"></textarea>
-        <span asp-validation-for="Content" class="text-danger"></span>
-    </div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label">Title</label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
 
-            <button type="submit" class="btn btn-outline-primary mt-3">Create Post</button>
-</form>
+            <div class="form-group">
+                <label asp-for="Content" class="control-label">Content</label>
+                <textarea asp-for="Content" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+
+            @* Проверете дали потребителят е член или създател на група *@
+            @if (ViewBag.UserGroup != null)
+            {
+                <div class="form-group mt-3">
+                    <label class="form-label">Publish as:</label>
+                    <div class="form-check form-switch">
+                        @Html.CheckBoxFor(m => m.IsGroupPost, new { @class = "form-check-input", @id = "isGroupPost" })
+                        <label class="form-check-label" for="isGroupPost">
+                            Group (@ViewBag.UserGroup)
+                        </label>
+                    </div>
+                </div>
+            }
+
+            <button type="submit" class="btn btn-outline-primary mt-3">Create</button>
+        </form>
     </div>
 </div>
+
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var isGroupPostCheckbox = document.getElementById('isGroupPost');
+
+            if (isGroupPostCheckbox) {
+                isGroupPostCheckbox.addEventListener('change', function () {
+                    // В този случай няма нужда от динамични действия, ако няма допълнителни полета
+                });
+
+                // Ако има нужда от начален настрой, може да добавите тук
+            }
+        });
+    </script>
 }

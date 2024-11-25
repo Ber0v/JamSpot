@@ -18,9 +18,11 @@ namespace JamSpotApp.Models.feed
         [Required]
         public required string Publisher { get; set; }
 
-        public Guid PublisherId { get; set; }
+        public Guid? PublisherId { get; set; }
 
         [Required]
         public string CreatedDate { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
+        public bool IsGroupPost { get; set; }
+        public bool CanEdit { get; set; }
     }
 }
