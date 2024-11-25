@@ -41,7 +41,7 @@
                         <!-- Actions -->
                         <div class="ms-auto">
                             <!-- View Profile Button -->
-                            <a asp-controller="User" asp-action="Profile" asp-route-id="@member.UserId" class="btn btn-sm btn-outline-info me-2">View</a>
+                            <a asp-controller="User" asp-action="All" asp-route-id="@member.UserId" class="btn btn-sm btn-outline-info me-2">View</a>
 
                             <!-- Kick Button (Admin Only) -->
                             @if (Model.IsGroupAdmin && member.UserId != Model.CreatorId)

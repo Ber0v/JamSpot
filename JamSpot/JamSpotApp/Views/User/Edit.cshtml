@@ -39,10 +39,10 @@
                 <span asp-validation-for="Instrument" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+            <button type="submit" class="btn btn-outline-primary mt-3">Save Changes</button>
             @if (Model != null)
             {
-                <a asp-controller="User" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger mt-3">Delete</a>
+                <a asp-controller="User" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger mt-3">Delete</a>
             }
         </form>
     </div>
