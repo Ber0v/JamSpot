@@ -45,7 +45,7 @@ namespace JamSpotApp.Controllers
             // Вземане на публикации
             var posts = await _context.Posts
                 .Include(p => p.User)
-                .Take(3)
+                .Take(2)
                 .Select(p => new FeedViewModel()
                 {
                     Id = p.Id,
