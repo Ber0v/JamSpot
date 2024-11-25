@@ -251,6 +251,7 @@ namespace JamSpotApp.Controllers
 
             var model = new CreateGroupViewModel()
             {
+                Id = id,
                 GroupName = group.GroupName,
                 Description = group.Description,
                 Genre = group.Genre,
@@ -350,8 +351,9 @@ namespace JamSpotApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(DeleteGroupViewModel model)
         {
             var groupToDelete = await context.Groups
-                .Include(g => g.Creator)
-                .FirstOrDefaultAsync(g => g.Id == model.Id);
+      .Include(g => g.Creator)
+      .Include(g => g.Members) // Включваме членовете
+      .FirstOrDefaultAsync(g => g.Id == model.Id);
 
             if (groupToDelete == null)
             {
@@ -363,9 +365,13 @@ namespace JamSpotApp.Controllers
             // Проверка дали текущият потребител е създателят
             if (groupToDelete.Creator.Id != user.Id)
             {
-                return Forbid(); // или return Unauthorized();
+                return Forbid();
             }
 
+            // Премахваме всички членове от групата
+            groupToDelete.Members.Clear();
+
+            // Сега можем да изтрием групата
             context.Groups.Remove(groupToDelete);
             await context.SaveChangesAsync();
 
