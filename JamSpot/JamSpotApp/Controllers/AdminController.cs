@@ -5,7 +5,6 @@ namespace JamSpotApp.Controllers
     [Area("Admin")]
     public class AdminController : Controller
     {
-        //
         [HttpPost]
         [ValidateAntiForgeryToken] // Задължителен за защита от CSRF
         public IActionResult ToggleAdminMode(bool isAdminModeEnabled)

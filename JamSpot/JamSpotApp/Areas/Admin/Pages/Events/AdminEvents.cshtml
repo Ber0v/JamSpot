@@ -33,7 +33,7 @@
                             <strong>Location:</strong>
                             @if (Uri.IsWellFormedUriString(eventItem.Location, UriKind.Absolute))
                             {
-                                <a href="@eventItem.Location" target="_blank" class="btn btn-primary btn-sm">Open Location</a>
+                                <a href="@eventItem.Location" target="_blank" class="btn btn-outline-primary btn-sm">Open Location</a>
                             }
                             else
                             {
@@ -47,7 +47,7 @@
                             <p class="mb-0"><strong>Date:</strong> @eventItem.Date</p>
                             <p class="mb-0"><strong>Hour:</strong> @eventItem.Hour</p>
                         </div>
-                        <button class="btn btn-danger btn-sm"
+                        <button class="btn btn-outline-danger btn-sm"
                                 data-bs-toggle="modal"
                                 data-bs-target="#deleteModal"
                                 data-id="@eventItem.Id"
@@ -73,8 +73,8 @@
                 Are you sure you want to delete <strong id="eventName"></strong>?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button id="confirmDelete" class="btn btn-danger">Delete</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="confirmDelete" class="btn btn-outline-danger">Delete</button>
             </div>
         </div>
     </div>
