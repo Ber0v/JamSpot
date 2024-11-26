@@ -35,14 +35,14 @@
                 <div class="collapse navbar-collapse" id="collapsibleNavbar">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link active" asp-controller="Admin" asp-action="Index">
+                            <a class="nav-link active" href="/">
                                 Home
                                 <span class="visually-hidden">(current)</span>
                             </a>
                         </li>
                         
                         <li class="nav-item dropdown">
-                        <li><a class="nav-link" asp-controller="AdminEvent" asp-action="All">Events</a></li>
+                        <li><a class="nav-link" asp-area="Admin" asp-page="/Events/AdminEvents">Events</a></li>
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">

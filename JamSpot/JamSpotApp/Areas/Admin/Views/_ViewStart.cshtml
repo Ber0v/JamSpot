@@ -1,6 +1,0 @@
-﻿@inject IHttpContextAccessor HttpContextAccessor
-
-@{
-    var isAdminModeEnabled = HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/Admin");
-    Layout = isAdminModeEnabled ? "~/Areas/Admin/Views/_AdminLayout.cshtml" : "_Layout";
-}

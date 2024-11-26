@@ -33,14 +33,10 @@
                 {
                     <li class="dropdown-item">
                         <form asp-area="Admin" asp-controller="Admin" asp-action="ToggleAdminMode" method="post">
+                            @Html.AntiForgeryToken() <!-- Задължителен за защита от CSRF -->
                             <div class="form-check form-switch">
-                                <input type="hidden" name="hiddenIsAdminModeEnabled" value="false" />
-                                <input class="form-check-input" type="checkbox" id="adminModeToggle"
-                                       name="isAdminModeEnabled" value="true"
-                                       onchange="this.form.submit()" />
-                                <label class="form-check-label" for="adminModeToggle">
-                                    <span class="log-link">Admin Mode</span>
-                                </label>
+                                @Html.CheckBox("isAdminModeEnabled", Context.Request.Cookies["IsAdminMode"] == "true", new { @class = "form-check-input", @id = "adminModeToggle", onchange = "this.form.submit();" })
+                                <label class="form-check-label" for="adminModeToggle">Admin Mode</label>
                             </div>
                         </form>
                     </li>

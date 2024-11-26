@@ -1,3 +1,4 @@
 ﻿@{
-    Layout = "_Layout";
+    var isAdminMode = Context.Request.Cookies["IsAdminMode"] == "true";
+    Layout = isAdminMode ? "~/Views/Shared/_AdminLayout.cshtml" : "~/Views/Shared/_Layout.cshtml";
 }
