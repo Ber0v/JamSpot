@@ -21,35 +21,61 @@
                        accept="image/*"
                        onchange="previewImage(event)" />
             </div>
-            <div class="form-group">
-                <label asp-for="UserName" class="control-label">User Name</label>
-                <input asp-for="UserName" class="form-control" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
+
+            <!-- Име и Инструмент на един ред -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="UserName" class="control-label">User Name</label>
+                        <input asp-for="UserName" class="form-control" />
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Instrument" class="control-label">Instrument</label>
+                        <input asp-for="Instrument" class="form-control" />
+                        <span asp-validation-for="Instrument" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
+            <!-- Bio -->
+            <div class="form-group mb-3">
                 <label asp-for="UserBio" class="control-label">Bio</label>
-                <textarea asp-for="UserBio" class="form-control"></textarea>
+                <textarea asp-for="UserBio" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="UserBio" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Instrument" class="control-label">Instrument</label>
-                <input asp-for="Instrument" class="form-control" />
-                <span asp-validation-for="Instrument" class="text-danger"></span>
+            <!-- Instagram и Facebook на един ред -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="InstagramUrl" class="control-label">Instagram URL</label>
+                        <input asp-for="InstagramUrl" class="form-control" placeholder="https://instagram.com/yourprofile" />
+                        <span asp-validation-for="InstagramUrl" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="FacebookUrl" class="control-label">Facebook URL</label>
+                        <input asp-for="FacebookUrl" class="form-control" placeholder="https://facebook.com/yourprofile" />
+                        <span asp-validation-for="FacebookUrl" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-outline-primary mt-3">Save Changes</button>
             @if (Model != null)
             {
-                <a asp-controller="User" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger mt-3">Delete</a>
+                <a asp-controller="User" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger mt-3 ms-2">Delete</a>
             }
         </form>
     </div>
 </div>
-<script>
 
-    // Image preview function
+<script>
+    // Функция за предварителен преглед на изображението
     function previewImage(event) {
         const reader = new FileReader();
         reader.onload = function () {

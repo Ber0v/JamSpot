@@ -38,6 +38,8 @@ namespace JamSpotApp.Controllers
                         ProfilePicture = u.ProfilePicture,
                         UserName = u.UserName,
                         UserBio = u.UserBio,
+                        InstagramUrl = u.InstagramUrl,
+                        FacebookUrl = u.FacebookUrl,
                         Instrument = u.Instrument
                     })
                     .FirstOrDefaultAsync();
@@ -52,6 +54,8 @@ namespace JamSpotApp.Controllers
                     ProfilePicture = user.ProfilePicture,
                     UserName = user.UserName,
                     UserBio = user.UserBio,
+                    InstagramUrl = user.InstagramUrl,
+                    FacebookUrl = user.FacebookUrl,
                     Instrument = user.Instrument
                 };
             }
@@ -80,6 +84,8 @@ namespace JamSpotApp.Controllers
                 ExistingPicturePath = user.ProfilePicture,
                 UserName = user.UserName,
                 UserBio = user.UserBio,
+                InstagramUrl = user.InstagramUrl,
+                FacebookUrl = user.FacebookUrl,
                 Instrument = user.Instrument
             };
 
@@ -100,6 +106,8 @@ namespace JamSpotApp.Controllers
             user.UserName = model.UserName;
             user.NormalizedUserName = _userManager.NormalizeName(model.UserName);
             user.UserBio = model.UserBio;
+            user.InstagramUrl = string.IsNullOrWhiteSpace(model.InstagramUrl) ? null : model.InstagramUrl;
+            user.FacebookUrl = string.IsNullOrWhiteSpace(model.FacebookUrl) ? null : model.FacebookUrl;
             user.Instrument = model.Instrument;
 
             // Проверка дали има качено ново лого

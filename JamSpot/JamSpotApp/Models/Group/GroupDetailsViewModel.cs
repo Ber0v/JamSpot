@@ -6,6 +6,8 @@
         public required string GroupName { get; set; }
         public required string Logo { get; set; }
         public required string Description { get; set; }
+        public string? InstagramUrl { get; set; }
+        public string? FacebookUrl { get; set; }
         public string? Genre { get; set; }
         public required string Creator { get; set; }
         public Guid CreatorId { get; set; }

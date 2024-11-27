@@ -16,7 +16,25 @@
             <p class="text-muted">@Model.UserBio</p>
 
                 <!-- Instrument -->
-            <p><strong>Instrument:</strong>@Model.Instrument</p>
+            <p><strong>Instrument:</strong> @Model.Instrument</p>
+
+            <!-- Социални профили -->
+            <div class="mt-3">
+                @if (!string.IsNullOrEmpty(Model.InstagramUrl))
+                {
+                    <a href="@Model.InstagramUrl" target="_blank" class="me-3">
+                        <img src="~/Pictures/instagram.png" alt="Instagram" style="width:30px; height:30px;">
+                    </a>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.FacebookUrl))
+                {
+                    <a href="@Model.FacebookUrl" target="_blank">
+                        <img src="~/Pictures/facebook.png" alt="Facebook" style="width:30px; height:30px;">
+                    </a>
+                }
+            </div>
+
             @if (User?.Identity?.Name == Model.UserName)
             {
                 <!-- Edit Button -->

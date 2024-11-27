@@ -14,6 +14,9 @@ namespace JamSpotApp.Models.Group
         [StringLength(1000), MinLength(5)]
         public string Description { get; set; } = string.Empty;
 
+        public string? InstagramUrl { get; set; }
+        public string? FacebookUrl { get; set; }
+
         public IFormFile? Logo { get; set; }
 
         [Required]
