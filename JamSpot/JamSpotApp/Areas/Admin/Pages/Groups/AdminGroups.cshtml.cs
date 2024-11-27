@@ -53,12 +53,23 @@ namespace JamSpotApp.Areas.Admin.Pages.Groups
 
         public async Task<IActionResult> OnPostDeleteAsync(Guid id)
         {
-            var groupsToDelete = await _context.Groups.FindAsync(id);
+            var groupsToDelete = await _context.Groups
+                .Include(g => g.Creator)
+                .Include(g => g.Members)
+                .Include(g => g.Posts)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (groupsToDelete == null)
             {
                 return NotFound();
             }
+
+            if (groupsToDelete.Posts != null && groupsToDelete.Posts.Any())
+            {
+                _context.Posts.RemoveRange(groupsToDelete.Posts); // Assumes Posts is a DbSet in your DbContext
+            }
+
+            groupsToDelete.Members.Clear();
 
             _context.Groups.Remove(groupsToDelete);
             await _context.SaveChangesAsync();
