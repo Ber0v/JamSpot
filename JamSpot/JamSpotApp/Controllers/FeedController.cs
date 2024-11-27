@@ -61,8 +61,7 @@ namespace ArtJamWebApp.Controllers
                     IsGroupPost = p.Group != null,
                     // Задаване на CanEdit
                     CanEdit = (p.User != null && p.User.Id == currentUser.Id) ||
-                              (p.Group != null && userGroup != null && (userGroup.CreatorId == currentUser.Id ||
-                              userGroup.Members.Any(m => m.Id == currentUser.Id)))
+          (p.Group != null && userGroup != null && userGroup.CreatorId == currentUser.Id)
                 })
                 .ToListAsync();
 
