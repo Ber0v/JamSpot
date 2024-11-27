@@ -1,4 +1,117 @@
 ﻿@page
-@model JamSpotApp.Areas.Admin.Pages.Groups.AdminGroupsModel
-@{
-}
+@model JamSpotApp.Areas.Admin.Pages.Feed.AdminFeedModel
+
+<h2 class="mt-3 text-center">All Posts</h2>
+<form method="get" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="SearchTerm" class="form-control" placeholder="Search by users..." value="@Model.SearchTerm" />
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+    </div>
+</form>
+<hr />
+
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var e in Model.Posts)
+        {
+            <div class="col">
+                <div class="card rounded-4 custom-navbar">
+                    <div class="card-header bg-dark text-white rounded-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="card-title mt-1 mb-1">@e.Publisher</h4>
+                                @if (!string.IsNullOrEmpty(e.Instrument))
+                                {
+                                    <div class="mt-2">
+                                        <span class="badge bg-success">@e.Instrument</span>
+                                    </div>
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(e.Image))
+                            {
+                                <img src="@e.Image" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" alt="Image">
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <h4 class="card-title mt-0">@e.Title</h4>
+                        <p class="card-text">@e.Content</p>
+                    </div>
+
+                    <div class="card-footer border-secondary">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center">
+                            <p class="mb-2"><span class="fw-bold">Published: </span>@e.CreatedDate</p>
+                            <div class="d-flex flex-wrap justify-content-end">
+
+                                <button class="btn btn-outline-danger btn-sm me-2 mb-2 fw-bold"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal"
+                                        data-id="@e.Id"
+                                        data-name="@e.Title">
+                                    Delete  
+                                </button>
+
+                                @if (e.IsGroupPost)
+                                {
+                                    <a href="/Group/Details/@e.PublisherId" class="btn btn-outline-warning btn-sm mb-2 fw-bold rounded btn-dark-text">Details</a>
+                                }
+                                else
+                                {
+                                    <a href="/User/All/@e.PublisherId" class="btn btn-outline-warning btn-sm mb-2 fw-bold rounded btn-dark-text">Details</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content custom-navbar">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete <strong id="postName"></strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="confirmDelete" class="btn btn-outline-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let deleteId = null;
+
+        const deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (post) {
+            const button = post.relatedTarget;
+            deleteId = button.getAttribute('data-id');
+            const postName = button.getAttribute('data-name');
+            document.getElementById('postName').textContent = postName;
+        });
+
+        document.getElementById('confirmDelete').addEventListener('click', function () {
+            if (deleteId) {
+                fetch(`?handler=Delete&id=${deleteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to delete the post.');
+                    }
+                });
+            }
+        });
+    </script>
