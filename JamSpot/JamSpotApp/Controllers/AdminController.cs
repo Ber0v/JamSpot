@@ -20,7 +20,7 @@ namespace JamSpotApp.Controllers
                 Response.Cookies.Delete("IsAdminMode");
             }
 
-            return Redirect(Request.Headers["Referer"].ToString() ?? "/");
+            return Redirect("/");
         }
     }
 }
