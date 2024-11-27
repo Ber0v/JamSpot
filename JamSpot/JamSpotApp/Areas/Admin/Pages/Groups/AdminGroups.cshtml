@@ -1,4 +1,91 @@
 ﻿@page
 @model JamSpotApp.Areas.Admin.Pages.Groups.AdminGroupsModel
-@{
-}
+
+<h2 class="mt-3 text-center">All Groups</h2>
+<form method="get" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="SearchTerm" class="form-control" placeholder="Search by users..." value="@Model.SearchTerm" />
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+    </div>
+</form>
+<hr />
+
+<div class="container">
+    <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1 g-4">
+        @foreach (var group in Model.Groups)
+        {
+            <div class="col">
+                <div class="card rounded-5 custom-navbar" style="width: 200px">
+                    <div class="card-header bg-gradient rounded-5">
+                        <div class="d-flex justify-content-center">
+                            <img src="@group.Logo" class="card-img-top rounded-5" style="width: 190px; height: 190px; object-fit: cover;" alt="Group Logo" />
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-center">@group.GroupName</h5>
+                        <div class="d-flex justify-content-center">
+                            <span class="badge bg-secondary">@group.Genre</span>
+                        </div>
+                    </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <a href="/Group/Details/@group.Id" class="btn btn-outline-primary">View</a>
+                            <button class="btn btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    data-id="@group.Id"
+                                    data-name="@group.GroupName">
+                                Delete
+                            </button>
+                        </div>
+                </div>
+            </div>
+        }
+    </div>
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content custom-navbar">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete group <strong id="groupName"></strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="confirmDelete" class="btn btn-outline-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            let deleteId = null;
+
+                const deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (group) {
+            const button = event.relatedTarget;
+            deleteId = button.getAttribute('data-id');
+            const groupName = button.getAttribute('data-name');
+            document.getElementById('groupName').textContent = groupName;
+        });
+
+            document.getElementById('confirmDelete').addEventListener('click', function () {
+                if (deleteId) {
+                    fetch(`?handler=Delete&id=${deleteId}`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            alert('Failed to delete the user.');
+                        }
+                    });
+                }
+            });
+            </script>
