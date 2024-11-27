@@ -36,7 +36,7 @@
                             @Html.AntiForgeryToken() <!-- Задължителен за защита от CSRF -->
                             <div class="form-check form-switch">
                                 @Html.CheckBox("isAdminModeEnabled", Context.Request.Cookies["IsAdminMode"] == "true", new { @class = "form-check-input", @id = "adminModeToggle", onchange = "this.form.submit();" })
-                                <label class="form-check-label" for="adminModeToggle">Admin Mode</label>
+                                <label class="form-check-label log-link" for="adminModeToggle">Admin Mode</label>
                             </div>
                         </form>
                     </li>
