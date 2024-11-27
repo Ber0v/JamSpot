@@ -1,0 +1,29 @@
+﻿/* Основен фон и текстови цветове */
+body {
+    background-color: #2b2b2b;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* Обвиващ контейнер за центриране */
+.Error-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+}
+
+/* Контейнер за грешката */
+.Error-container {
+    background-color: #3c3c3c;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+}
+
+footer {
+    display: none; /* Скрива навбара и футъра */
+}
