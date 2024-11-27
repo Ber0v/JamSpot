@@ -12,6 +12,8 @@ namespace JamSpotApp.Data.Models
         public string? ProfilePicture { get; set; }
         public string? UserBio { get; set; }
         public string? Instrument { get; set; }
+        public string? InstagramUrl { get; set; }
+        public string? FacebookUrl { get; set; }
         public bool IsMusician { get; set; } = false;
 
         public ICollection<Post> Posts { get; set; } = new HashSet<Post>();
