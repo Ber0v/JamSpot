@@ -21,10 +21,27 @@
             <!-- Genre -->
             <p><strong>Genre:</strong> @Model.Genre</p>
 
+            <!-- Социални профили -->
+            <div class="mt-3">
+                @if (!string.IsNullOrEmpty(Model.InstagramUrl))
+                {
+                    <a href="@Model.InstagramUrl" target="_blank" class="me-3">
+                        <img src="~/Pictures/instagram.png" alt="Instagram" style="width:30px; height:30px;">
+                    </a>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.FacebookUrl))
+                {
+                    <a href="@Model.FacebookUrl" target="_blank">
+                        <img src="~/Pictures/facebook.png" alt="Facebook" style="width:30px; height:30px;">
+                    </a>
+                }
+            </div>
+
             <!-- Members Section -->
             @if (Model.Members != null && Model.Members.Any())
             {
-                <p><strong>Members:</strong></p>
+                <p class="mt-3"><strong>Members:</strong></p>
                 @foreach (var member in Model.Members)
                 {
                     <div class="d-flex align-items-center mb-3">

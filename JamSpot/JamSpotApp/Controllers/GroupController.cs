@@ -203,6 +203,8 @@ namespace JamSpotApp.Controllers
                     GroupName = g.GroupName,
                     Logo = g.Logo,
                     Description = g.Description,
+                    InstagramUrl = g.InstagramUrl,
+                    FacebookUrl = g.FacebookUrl,
                     Genre = g.Genre,
                     Creator = g.Creator.UserName,
                     CreatorId = g.CreatorId,
@@ -274,6 +276,8 @@ namespace JamSpotApp.Controllers
                 Id = id,
                 GroupName = group.GroupName,
                 Description = group.Description,
+                InstagramUrl = group.InstagramUrl,
+                FacebookUrl = group.FacebookUrl,
                 Genre = group.Genre,
                 ExistingLogoPath = group.Logo
             };
@@ -309,6 +313,8 @@ namespace JamSpotApp.Controllers
 
             group.GroupName = model.GroupName;
             group.Description = model.Description;
+            group.InstagramUrl = string.IsNullOrWhiteSpace(model.InstagramUrl) ? null : model.InstagramUrl;
+            group.FacebookUrl = string.IsNullOrWhiteSpace(model.FacebookUrl) ? null : model.FacebookUrl;
             group.Genre = model.Genre;
 
             // Проверка дали има качено ново лого

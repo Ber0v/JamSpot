@@ -21,11 +21,23 @@
                            accept="image/*"
                            onchange="previewImage(event)" />
                 </div>
-        <div class="form-group">
-            <label asp-for="GroupName" class="control-label">Group Name</label>
-            <input asp-for="GroupName" class="form-control" />
-            <span asp-validation-for="GroupName" class="text-danger"></span>
-        </div>
+        
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="GroupName" class="control-label">Group Name</label>
+                        <input asp-for="GroupName" class="form-control" />
+                        <span asp-validation-for="GroupName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Genre" class="control-label">Genre</label>
+                        <input asp-for="Genre" class="form-control" />
+                        <span asp-validation-for="Genre" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
 
         <div class="form-group">
             <label asp-for="Description" class="control-label">Description</label>
@@ -33,11 +45,24 @@
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
 
-        <div class="form-group">
-            <label asp-for="Genre" class="control-label">Genre</label>
-            <input asp-for="Genre" class="form-control" />
-            <span asp-validation-for="Genre" class="text-danger"></span>
-        </div>
+            <!-- Instagram и Facebook на един ред -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="InstagramUrl" class="control-label">Instagram URL</label>
+                        <input asp-for="InstagramUrl" class="form-control" placeholder="https://instagram.com/yourprofile" />
+                        <span asp-validation-for="InstagramUrl" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="FacebookUrl" class="control-label">Facebook URL</label>
+                        <input asp-for="FacebookUrl" class="form-control" placeholder="https://facebook.com/yourprofile" />
+                        <span asp-validation-for="FacebookUrl" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
             <div class="mt-4">
                 <a asp-controller="Group" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-2">
                     Delete Group
