@@ -13,9 +13,10 @@
                 <div>
                     <h4>@Model.UserName</h4>
 
-                    <form asp-action="DeleteConfirmed" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                    <form asp-action="DeleteConfirmed" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Id" />
-                        <button type="submit" class="btn btn-outline-danger">Yes</button>
+                        <button type="submit" class="btn btn-outline-danger">Yes, Delete</button>
                         <a asp-action="All" class="btn btn-outline-secondary">Cancel</a>
                     </form>
                 </div>

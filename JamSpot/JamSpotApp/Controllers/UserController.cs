@@ -1,27 +1,35 @@
 ﻿using JamSpotApp.Data;
 using JamSpotApp.Data.Models;
+using JamSpotApp.Models.User;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace JamSpotApp.Controllers
 {
-    using JamSpotApp.Models.User;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.AspNetCore.Identity;
-    using Microsoft.EntityFrameworkCore;
-
+    [Authorize]
     public class UserController : Controller
     {
-        private readonly JamSpotDbContext context;
+        private readonly JamSpotDbContext _context;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(JamSpotDbContext _context, UserManager<User> userManager, SignInManager<User> signInManager)
+        public UserController(
+            JamSpotDbContext context,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            ILogger<UserController> logger)
         {
-            context = _context;
+            _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _logger = logger;
         }
 
+        // GET: /User/All/{id?}
         [HttpGet]
         public async Task<IActionResult> All(Guid? id)
         {
@@ -29,13 +37,13 @@ namespace JamSpotApp.Controllers
 
             if (id.HasValue)
             {
-                // Показва конкретен потребител по ID
-                model = await context.Users
+                // Display a specific user by ID
+                model = await _context.Users
                     .Where(u => u.Id == id.Value)
                     .Select(u => new UserViewModel
                     {
                         Id = u.Id,
-                        ProfilePicture = u.ProfilePicture,
+                        ProfilePicture = u.ProfilePicture ?? DefaultLogo(),
                         UserName = u.UserName,
                         UserBio = u.UserBio,
                         InstagramUrl = u.InstagramUrl,
@@ -46,12 +54,17 @@ namespace JamSpotApp.Controllers
             }
             else
             {
-                // Логика за общ преглед, ако ID не е подадено
+                // Display the current user's profile
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
                 model = new UserViewModel
                 {
                     Id = user.Id,
-                    ProfilePicture = user.ProfilePicture,
+                    ProfilePicture = user.ProfilePicture ?? DefaultLogo(),
                     UserName = user.UserName,
                     UserBio = user.UserBio,
                     InstagramUrl = user.InstagramUrl,
@@ -68,17 +81,27 @@ namespace JamSpotApp.Controllers
             return View(model);
         }
 
-
-        // GET: /User/Edit/{id} - Извежда форма за редактиране на съществуваща user
+        // GET: /User/Edit/{id}
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var user = await context.Users
-                .Where(g => g.Id == id)
+            var user = await _context.Users
                 .AsNoTracking()
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(g => g.Id == id);
 
-            var model = new EditUserViewModel()
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Authorization: Only the user themselves can edit
+            var currentUserId = _userManager.GetUserId(User);
+            if (user.Id != Guid.Parse(currentUserId))
+            {
+                return Forbid();
+            }
+
+            var model = new EditUserViewModel
             {
                 Id = id,
                 ExistingPicturePath = user.ProfilePicture,
@@ -92,16 +115,33 @@ namespace JamSpotApp.Controllers
             return View(model);
         }
 
-        // POST: /User/Edit/{id} - Обработва редакцията на user
+        // POST: /User/Edit/{id}
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, EditUserViewModel model)
         {
+            if (id != model.Id)
+            {
+                return BadRequest();
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var user = await context.Users.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Authorization: Only the user themselves can edit
+            var currentUserId = _userManager.GetUserId(User);
+            if (user.Id != Guid.Parse(currentUserId))
+            {
+                return Forbid();
+            }
 
             user.UserName = model.UserName;
             user.NormalizedUserName = _userManager.NormalizeName(model.UserName);
@@ -110,102 +150,167 @@ namespace JamSpotApp.Controllers
             user.FacebookUrl = string.IsNullOrWhiteSpace(model.FacebookUrl) ? null : model.FacebookUrl;
             user.Instrument = model.Instrument;
 
-            // Проверка дали има качено ново лого
             if (model.ProfilePicture != null)
             {
-                // Изтриваме старото лого от файловата система, ако съществува
-                if (!string.IsNullOrEmpty(user.ProfilePicture) && user.ProfilePicture != DefaultLogo())
+                try
                 {
-                    var oldLogoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicture.TrimStart('/'));
-                    if (System.IO.File.Exists(oldLogoPath))
+                    if (!string.IsNullOrEmpty(user.ProfilePicture) && user.ProfilePicture != DefaultLogo())
                     {
-                        System.IO.File.Delete(oldLogoPath);
+                        var oldLogoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicture.TrimStart('/'));
+                        if (System.IO.File.Exists(oldLogoPath))
+                        {
+                            System.IO.File.Delete(oldLogoPath);
+                        }
                     }
-                }
 
-                // Качваме новото лого и го записваме
-                user.ProfilePicture = UploadLogo(model.ProfilePicture);
+                    user.ProfilePicture = await UploadLogoAsync(model.ProfilePicture);
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, "Image upload failed.");
+                    _logger.LogError(ex, "Error uploading image for user {UserId}.", user.Id);
+                    return View(model);
+                }
             }
 
-            // Обновяване на SecurityStamp
-            await _userManager.UpdateSecurityStampAsync(user);
+            try
+            {
+                await _userManager.UpdateSecurityStampAsync(user);
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating user {UserId}.", user.Id);
+                ModelState.AddModelError(string.Empty, "Error updating the profile.");
+                return View(model);
+            }
 
-            await context.SaveChangesAsync();
-
-            // Изход и вход с актуализирани данни
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             await _signInManager.SignInAsync(user, isPersistent: false);
+
+            _logger.LogInformation("User {UserId} edited successfully.", user.Id);
 
             return RedirectToAction(nameof(All));
         }
 
+        // GET: /User/Delete/{id}
         [HttpGet]
-        public async Task<IActionResult> Delete(Guid id)
+        [AllowAnonymous]
+        public async Task<IActionResult> Delete(Guid? id)
         {
-            var model = await context.Users
-                .Where(p => p.Id == id)
-                .AsNoTracking()
-                .Select(p => new DeleteUserViewModel()
-                {
-                    Id = p.Id,
-                    UserName = p.UserName,
-                })
-                .FirstOrDefaultAsync();
+            if (id.HasValue)
+            {
+                var model = await _context.Users
+                    .Where(p => p.Id == id.Value)
+                    .AsNoTracking()
+                    .Select(p => new DeleteUserViewModel
+                    {
+                        Id = p.Id,
+                        UserName = p.UserName,
+                    })
+                    .FirstOrDefaultAsync();
 
-            return View(model);
+                if (model == null)
+                {
+                    return NotFound();
+                }
+
+                // Authorization: Only the user themselves can delete
+                var currentUserId = _userManager.GetUserId(User);
+                if (model.Id != Guid.Parse(currentUserId))
+                {
+                    return Forbid();
+                }
+
+                return View(model);
+            }
+            else
+            {
+                // User is signed out, show deletion confirmation message
+                return View(null);
+            }
         }
 
-        [HttpPost]
+        // POST: /User/DeleteConfirmed
+        [HttpPost, ActionName("DeleteConfirmed")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(DeleteUserViewModel model)
         {
-            var user = await context.Users.FindAsync(model.Id);
+            var user = await _context.Users.FindAsync(model.Id);
 
             if (user == null)
             {
                 return NotFound();
             }
 
-            context.Users.Remove(user);
-            await context.SaveChangesAsync();
+            // Authorization: Only the user themselves can delete
+            var currentUserId = _userManager.GetUserId(User);
+            if (user.Id != Guid.Parse(currentUserId))
+            {
+                return Forbid();
+            }
 
-            await _userManager.UpdateSecurityStampAsync(user);
-            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            try
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
 
-            return RedirectToAction("Delete");
+                await _userManager.UpdateSecurityStampAsync(user);
+                await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+
+                _logger.LogInformation("User {UserId} deleted successfully.", user.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting user {UserId}.", user.Id);
+                ModelState.AddModelError(string.Empty, "Error deleting the user.");
+                return View(model);
+            }
+
+            return RedirectToAction("Delete", "User");
         }
-        private string UploadLogo(IFormFile file)
+
+        // Helper method to upload profile pictures
+        private async Task<string> UploadLogoAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            // Генерираме уникално име за файла
-            var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var extension = Path.GetExtension(file.FileName).ToLower();
+            if (!allowedExtensions.Contains(extension))
+            {
+                throw new InvalidOperationException("Unsupported image format.");
+            }
 
-            // Определяме директорията, където ще съхраняваме файловете
+            if (file.Length > 2 * 1024 * 1024)
+            {
+                throw new InvalidOperationException("File size exceeds the limit of 2MB.");
+            }
+
+            var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
 
-            // Създаваме директорията, ако не съществува
             if (!Directory.Exists(uploadsFolder))
             {
                 Directory.CreateDirectory(uploadsFolder);
             }
 
-            // Пълния път на файла
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-            // Качваме файла в директорията
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
-                file.CopyTo(fileStream);
+                await file.CopyToAsync(fileStream);
             }
 
-            // Връщаме относителния път, за да може да бъде използван в HTML
             return "/uploads/" + uniqueFileName;
         }
 
+        // Returns the default profile picture path
         private string DefaultLogo()
         {
-            return "https://static.vecteezy.com/system/resources/thumbnails/046/300/546/small/avatar-user-profile-person-icon-gender-neutral-silhouette-profile-picture-suitable-for-social-media-profiles-icons-screensavers-free-png.png";
+            return "/Pictures/DefaultUser.png";
         }
     }
 }
