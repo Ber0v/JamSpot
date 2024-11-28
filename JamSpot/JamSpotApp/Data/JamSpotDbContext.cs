@@ -26,6 +26,10 @@ namespace JamSpotApp.Data
             // Configure Post relationships
             PostMethod(builder);
 
+            builder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
             // Configure Event relationships
             builder.Entity<Event>()
                 .HasOne(e => e.Organizer)
