@@ -28,7 +28,7 @@
                 <img src="@profilePictureUrl" style="width:30px;" class="rounded-circle" />
             </a>
             <ul class="dropdown-menu dropdown-menu-end custom-navbar" aria-labelledby="profileDropdown">
-                <li><a asp-controller="User" asp-action="All" class="dropdown-item log-link">My profile</a></li>
+                <li><a href="/User/All/@user.Id" class="dropdown-item log-link">My profile</a></li>
                 @if (isAdmin)
                 {
                     <li class="dropdown-item">
