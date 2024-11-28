@@ -1,27 +1,43 @@
-﻿@using JamSpotApp.Models.Group
-@model CreateGroupViewModel
+﻿@model JamSpotApp.Models.Group.CreateGroupViewModel
+
+@{
+    ViewData["Title"] = "Edit Group";
+}
 
 <link rel="stylesheet" href="~/css/CreateGroup.css" asp-append-version="true" />
 
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 50vh;">
     <div class="Group-container">
-    <h2>Edit Group</h2>
-    <form asp-action="Edit" method="post" enctype="multipart/form-data">
-        <input type="hidden" asp-for="Id" />
-                <div class="Group-picture-container">
-                    <img id="GroupImage"
-                     src="@Model.ExistingLogoPath"
-                         alt="Profile Picture"
-                         class="Group-picture"
-                         onclick="document.getElementById('fileInput').click();" />
-                    <input type="file"
-                           id="fileInput"
-                           class="file-input"
-                           asp-for="Logo"
-                           accept="image/*"
-                           onchange="previewImage(event)" />
-                </div>
-        
+        <h2>Edit Group</h2>
+
+        @* Показване на съобщения за грешки *@
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <input type="hidden" asp-for="Id" />
+            <div class="Group-picture-container">
+                <img id="GroupImage"
+                     src="@(string.IsNullOrEmpty(Model.ExistingLogoPath) ? "/Pictures/DefaultUser.png" : Model.ExistingLogoPath)"
+                     alt="Group Logo"
+                     class="Group-picture"
+                     onclick="document.getElementById('fileInput').click();" />
+                <input type="file"
+                       id="fileInput"
+                       class="file-input"
+                       asp-for="Logo"
+                       accept="image/*"
+                       onchange="previewImage(event)" />
+                <span asp-validation-for="Logo" class="text-danger"></span>
+            </div>
+
             <div class="row mb-3">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -39,11 +55,11 @@
                 </div>
             </div>
 
-        <div class="form-group">
-            <label asp-for="Description" class="control-label">Description</label>
-            <textarea asp-for="Description" class="form-control"></textarea>
-            <span asp-validation-for="Description" class="text-danger"></span>
-        </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label">Description</label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
 
             <!-- Instagram и Facebook на един ред -->
             <div class="row mb-3">
@@ -63,17 +79,16 @@
                 </div>
             </div>
 
-            <div class="mt-4">
-                <a asp-controller="Group" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-2">
+            <div class="mt-4 d-flex justify-content-between">
+                <a asp-controller="Group" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
                     Delete Group
                 </a>
-                <button type="submit" class="btn btn-outline-primary ms-2">Save Changes</button>
+                <button type="submit" class="btn btn-outline-primary">Save Changes</button>
             </div>
-    </form>
-</div>
+        </form>
+    </div>
 </div>
 <script>
-
     // Image preview function
     function previewImage(event) {
         const reader = new FileReader();

@@ -4,8 +4,8 @@
     {
         public Guid Id { get; set; }
 
-        public required string GroupName { get; set; }
+        public string GroupName { get; set; }
 
-        public required string Creator { get; set; }
+        public string Creator { get; set; }
     }
 }

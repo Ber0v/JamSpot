@@ -4,14 +4,14 @@ namespace JamSpotApp.Models.Group
 {
     public class CreateGroupViewModel
     {
-        public Guid Id { get; internal set; }
+        public Guid Id { get; set; } // Optional или може да бъде премахнато при създаване
 
         [Required]
-        [StringLength(50), MinLength(2)]
+        [StringLength(50, MinimumLength = 2)]
         public string GroupName { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(1000), MinLength(5)]
+        [StringLength(1000, MinimumLength = 5)]
         public string Description { get; set; } = string.Empty;
 
         [Display(Name = "Instagram Profile URL")]
@@ -25,8 +25,8 @@ namespace JamSpotApp.Models.Group
         public IFormFile? Logo { get; set; }
 
         [Required]
-        [StringLength(20), MinLength(2)]
-        public string? Genre { get; set; }
+        [StringLength(20, MinimumLength = 2)]
+        public string Genre { get; set; }
 
         public string? ExistingLogoPath { get; set; }
     }

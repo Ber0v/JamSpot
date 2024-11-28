@@ -1,16 +1,27 @@
-﻿@using JamSpotApp.Models.Group
-@model CreateGroupViewModel
-<link rel="stylesheet" href="~/css/CreateGroup.css" asp-append-version="true"/>
+﻿@model JamSpotApp.Models.Group.CreateGroupViewModel
+
+<link rel="stylesheet" href="~/css/CreateGroup.css" asp-append-version="true" />
 
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 50vh;">
     <div class="Group-container">
-    <h2>Create New Group</h2>
+        <h2>Create New Group</h2>
 
-    <form asp-action="CreateGroup" method="post" enctype="multipart/form-data">
+        @* Показване на съобщения за грешки *@
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <form asp-action="CreateGroup" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
             <div class="Group-picture-container">
                 <img id="GroupImage"
                      src="https://static.vecteezy.com/system/resources/thumbnails/046/300/546/small/avatar-user-profile-person-icon-gender-neutral-silhouette-profile-picture-suitable-for-social-media-profiles-icons-screensavers-free-png.png"
-                     alt="Profile Picture"
+                     alt="Group Logo"
                      class="Group-picture"
                      onclick="document.getElementById('fileInput').click();" />
                 <input type="file"
@@ -19,28 +30,29 @@
                        asp-for="Logo"
                        accept="image/*"
                        onchange="previewImage(event)" />
+                <span asp-validation-for="Logo" class="text-danger"></span>
             </div>
-        <div class="form-group">
-            <label asp-for="GroupName" class="control-label">Group Name</label>
-            <input asp-for="GroupName" class="form-control" />
-            <span asp-validation-for="GroupName" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Description" class="control-label">Description</label>
-            <textarea asp-for="Description" class="form-control"></textarea>
-            <span asp-validation-for="Description" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Genre" class="control-label">Genre</label>
-            <input asp-for="Genre" class="form-control" />
-            <span asp-validation-for="Genre" class="text-danger"></span>
-        </div>
+
+            <div class="form-group">
+                <label asp-for="GroupName" class="control-label">Group Name</label>
+                <input asp-for="GroupName" class="form-control" />
+                <span asp-validation-for="GroupName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label">Description</label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Genre" class="control-label">Genre</label>
+                <input asp-for="Genre" class="form-control" />
+                <span asp-validation-for="Genre" class="text-danger"></span>
+            </div>
             <button type="submit" class="btn btn-outline-primary mt-3">Create Group</button>
-    </form>
+        </form>
     </div>
 </div>
 <script>
-    
     // Image preview function
     function previewImage(event) {
         const reader = new FileReader();

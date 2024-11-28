@@ -13,5 +13,6 @@
         public Guid CreatorId { get; set; }
         public bool IsGroupAdmin { get; set; }
         public List<GroupMemberViewModel> Members { get; set; } = new List<GroupMemberViewModel>();
+        public List<UserSelectionViewModel> AvailableUsers { get; set; } = new List<UserSelectionViewModel>();
     }
 }

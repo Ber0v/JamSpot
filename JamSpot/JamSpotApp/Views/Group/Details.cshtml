@@ -1,10 +1,27 @@
-﻿@using JamSpotApp.Models.Group
-@model GroupDetailsViewModel
+﻿@model JamSpotApp.Models.Group.GroupDetailsViewModel
 
-<!-- Include your custom CSS file -->
+@{
+    ViewData["Title"] = "Group Details";
+}
+
 <link rel="stylesheet" href="~/css/DetailsGroup.css" asp-append-version="true" />
 
 <div class="container mt-5">
+    @* Показване на съобщения за успех и грешки *@
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
     <div class="row justify-content-center">
         <div class="col-md-8 text-center">
             <!-- Group Logo -->
@@ -46,7 +63,7 @@
                 {
                     <div class="d-flex align-items-center mb-3">
                         <!-- Member's Profile Picture -->
-                        <img src="@(string.IsNullOrEmpty(member.ProfilePicture) ? "/images/default-profile.png" : member.ProfilePicture)"
+                        <img src="@(string.IsNullOrEmpty(member.ProfilePicture) ? "/Pictures/DefaultUser.png" : member.ProfilePicture)"
                              alt="@member.UserName" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
 
                         <!-- Member's Name and Instrument Badge -->
@@ -65,6 +82,7 @@
                             {
                                 <form asp-action="RemoveMember" method="post" class="d-inline"
                                       onsubmit="return confirm('Are you sure you want to remove this member?');">
+                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="groupId" value="@Model.Id" />
                                     <input type="hidden" name="userId" value="@member.UserId" />
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Kick</button>
@@ -96,11 +114,13 @@
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
                                         style="position: absolute; top: 1rem; right: 1rem;"></button>
                             </div>
-                            <div class="modal-body text-center">
-                                <form asp-action="AddMember" method="post">
-                                    <input type="hidden" name="groupId" value="@Model.Id" />
-                                    <!-- Hidden field to store the selected user ID -->
-                                    <input type="hidden" name="userId" id="selectedUserId" required />
+                            <form asp-action="AddMember" method="post">
+                                <!-- Преместено формулярът навсякъде вътре в modal-content -->
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="groupId" value="@Model.Id" />
+                                <!-- Hidden field to store the selected user ID -->
+                                <input type="hidden" name="userId" id="selectedUserId" required />
+                                <div class="modal-body text-center">
                                     <div class="mb-3">
                                         <!-- Custom dropdown menu -->
                                         <div class="dropdown">
@@ -116,44 +136,49 @@
                                                 <!-- Divider -->
                                                 <li><hr class="dropdown-divider"></li>
                                                 <!-- User list -->
-                                                <div id="userList">
-                                                    @foreach (var user in ViewBag.AvailableUsers as List<UserSelectionViewModel>)
+                                                @if (Model.AvailableUsers.Any())
+                                                {
+                                                    @foreach (var user in Model.AvailableUsers)
                                                     {
-                                                    <li>
-                                                        <a href="#" class="dropdown-item d-flex align-items-center user-option"
-                                                           data-user-id="@user.UserId">
-                                                            <!-- User's Profile Picture -->
-                                                            <img src="@(string.IsNullOrEmpty(user.ProfilePicture) ? "/images/default-profile.png" : user.ProfilePicture)"
-                                                                 alt="@user.UserName" class="rounded-circle me-2"
-                                                                 style="width: 30px; height: 30px; object-fit: cover;">
-                                                            <!-- User's Name and Instrument -->
-                                                            <span>@user.UserName - @user.Instrument</span>
-                                                        </a>
-                                                    </li>
+                                                        <li>
+                                                            <a href="#" class="dropdown-item d-flex align-items-center user-option"
+                                                               data-user-id="@user.UserId">
+                                                                <!-- User's Profile Picture -->
+                                                                <img src="@(string.IsNullOrEmpty(user.ProfilePicture) ? "/Pictures/DefaultUser.png" : user.ProfilePicture)"
+                                                                     alt="@user.UserName" class="rounded-circle me-2"
+                                                                     style="width: 30px; height: 30px; object-fit: cover;">
+                                                                <!-- User's Name and Instrument -->
+                                                                <span>@user.UserName - @user.Instrument</span>
+                                                            </a>
+                                                        </li>
                                                     }
+                                                }
+                                                else
+                                                {
+                                                    <li>
+                                                        <span class="dropdown-item text-muted">No available users to add.</span>
+                                                    </li>
+                                                }
+                                            </ul>
                                         </div>
-                                        </ul>
                                     </div>
-                            </div>
-                            <div class="modal-footer justify-content-center" style="border-top: none;">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-outline-primary">Add</button>
-                            </div>
+                                </div>
+                                <div class="modal-footer justify-content-center" style="border-top: none;">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-outline-primary">Add</button>
+                                </div>
                             </form>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            
             }
 
-        <!-- Placeholder for Posts -->
-        <div class="text-center mt-5">
-            <p class="text-muted">Share music when you want to show it on your profile.</p>
+            <!-- Placeholder for Posts -->
+            <div class="text-center mt-5">
+                <p class="text-muted">Share music when you want to show it on your profile.</p>
+            </div>
         </div>
     </div>
-</div>
 </div>
 
 <!-- Include your custom JavaScript file -->
