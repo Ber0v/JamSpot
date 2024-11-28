@@ -117,7 +117,7 @@ namespace ArtJamWebApp.Areas.Identity.Pages.Account
 
         private string DefaultPicture()
         {
-            return "~/Pictures/DefaultUser.png";
+            return "https://static.vecteezy.com/system/resources/thumbnails/046/300/546/small/avatar-user-profile-person-icon-gender-neutral-silhouette-profile-picture-suitable-for-social-media-profiles-icons-screensavers-free-png.png";
         }
     }
 }
