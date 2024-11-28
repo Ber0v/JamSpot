@@ -50,6 +50,13 @@ namespace ArtJamWebApp.Areas.Identity.Pages.Account
                 return Page();
             }
 
+            var existingUser = await _userManager.FindByEmailAsync(Email);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Email", "Email is already registered.");
+                return Page();
+            }
+
             var user = new User
             {
                 Email = Email,
