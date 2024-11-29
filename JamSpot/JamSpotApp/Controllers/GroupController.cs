@@ -235,13 +235,10 @@ namespace JamSpotApp.Controllers
 
         // GET: /Group/Details/{id} - Display group details
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Details(Guid id)
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Challenge();
-            }
 
             var model = await _context.Groups
                 .Where(g => g.Id == id)
@@ -266,7 +263,7 @@ namespace JamSpotApp.Controllers
                         Instrument = m.Instrument,
                         ProfilePicture = m.ProfilePicture ?? DefaultProfilePicture()
                     }).ToList(),
-                    IsGroupAdmin = g.CreatorId == currentUser.Id
+                    IsGroupAdmin = currentUser != null && g.CreatorId == currentUser.Id
                 })
                 .FirstOrDefaultAsync();
 

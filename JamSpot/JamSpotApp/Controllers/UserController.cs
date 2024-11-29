@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JamSpotApp.Controllers
 {
-    [Authorize]
     public class UserController : Controller
     {
         private readonly JamSpotDbContext _context;

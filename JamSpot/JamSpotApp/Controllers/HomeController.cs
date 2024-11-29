@@ -61,7 +61,8 @@ namespace JamSpotApp.Controllers
                         Instrument = p.User.Instrument,
                         Image = p.User != null ? p.User.ProfilePicture : (p.Group != null ? p.Group.Logo : null),
                         Publisher = p.User != null ? p.User.UserName : (p.Group != null ? p.Group.GroupName : null),
-                        PublisherId = p.User != null ? p.User.Id : Guid.Empty,
+                        PublisherId = p.User != null ? p.User.Id : p.GroupId,
+                        IsGroupPost = p.Group != null,
                         CreatedDate = p.CreatedDate.ToString("yyyy-MM-dd"),
                     })
                     .ToListAsync();

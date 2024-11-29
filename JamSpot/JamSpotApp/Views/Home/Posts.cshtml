@@ -38,7 +38,14 @@ else
                             <div class="d-flex flex-wrap justify-content-end">
                                 @if (User.Identity.IsAuthenticated)
                                 {
-                                    <a asp-controller="Feed" asp-action="UserDetails" asp-route-id="@post.PublisherId" class="btn btn-outline-warning btn-sm mb-2 fw-bold rounded btn-dark-text">Details</a>
+                                    @if (post.IsGroupPost)
+                                    {
+                                        <a asp-controller="Group" asp-action="Details" asp-route-id="@post.PublisherId" class="btn btn-sm btn-outline-info mb-2 fw-bold rounded">Details</a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="User" asp-action="All" asp-route-id="@post.PublisherId" class="btn btn-sm btn-outline-info mb-2 fw-bold rounded">Details</a>
+                                    }
                                 }
                                 else
                                 {
