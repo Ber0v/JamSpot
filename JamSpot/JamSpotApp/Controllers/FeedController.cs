@@ -1,22 +1,23 @@
 ﻿using JamSpotApp.Data;
 using JamSpotApp.Data.Models;
+using JamSpotApp.Models.feed;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace ArtJamWebApp.Controllers
+namespace JamSpotApp.Controllers
 {
-    using JamSpotApp.Models.feed;
-    using Microsoft.AspNetCore.Identity;
-
+    [Authorize]
     public class FeedController : Controller
     {
-        private readonly JamSpotDbContext context;
+        private readonly JamSpotDbContext _context;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<FeedController> _logger;
 
-        public FeedController(JamSpotDbContext _context, UserManager<User> userManager, ILogger<FeedController> logger)
+        public FeedController(JamSpotDbContext context, UserManager<User> userManager, ILogger<FeedController> logger)
         {
-            context = _context;
+            _context = context;
             _userManager = userManager;
             _logger = logger;
         }
@@ -25,23 +26,27 @@ namespace ArtJamWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> All(int pageNumber = 1)
         {
-            int PageSize = 6;
+            const int PageSize = 6;
 
             var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge(); // Redirect to login if not authenticated
+            }
 
             // Намиране на групата, към която потребителят принадлежи или която е създател
-            var userGroup = await context.Groups
+            var userGroup = await _context.Groups
                 .Include(g => g.Members)
                 .FirstOrDefaultAsync(g => g.Members.Any(m => m.Id == currentUser.Id) || g.CreatorId == currentUser.Id);
 
             // Общо броя на постовете
-            int totalPosts = await context.Posts.CountAsync();
+            int totalPosts = await _context.Posts.CountAsync();
 
             // Изчисляване на общия брой страници
             int totalPages = (int)Math.Ceiling(totalPosts / (double)PageSize);
 
             // Вземане на постовете за текущата страница, сортирани по дата (най-новите първи)
-            var posts = await context.Posts
+            var posts = await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Group)
                 .AsNoTracking()
@@ -56,12 +61,11 @@ namespace ArtJamWebApp.Controllers
                     Instrument = p.User != null ? p.User.Instrument : null,
                     Image = p.User != null ? p.User.ProfilePicture : (p.Group != null ? p.Group.Logo : null),
                     Publisher = p.User != null ? p.User.UserName : (p.Group != null ? p.Group.GroupName : "Unknown"),
-                    PublisherId = p.User != null ? p.User.Id : p.GroupId ?? Guid.Empty,
+                    PublisherId = p.User != null ? p.User.Id : p.GroupId,
                     CreatedDate = p.CreatedDate.ToString("yyyy-MM-dd"),
                     IsGroupPost = p.Group != null,
-                    // Задаване на CanEdit
                     CanEdit = (p.User != null && p.User.Id == currentUser.Id) ||
-          (p.Group != null && userGroup != null && userGroup.CreatorId == currentUser.Id)
+                              (p.Group != null && userGroup != null && userGroup.CreatorId == currentUser.Id)
                 })
                 .ToListAsync();
 
@@ -76,21 +80,18 @@ namespace ArtJamWebApp.Controllers
             return View(viewModel);
         }
 
-        [HttpGet]
-        public IActionResult UserDetails(Guid id)
-        {
-            // Пренасочва към UserController -> All
-            return RedirectToAction("All", "User", new { id });
-        }
-
         // GET: /Feed/CreatePost - Display form for creating a post
         [HttpGet]
         public async Task<IActionResult> CreatePost()
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Challenge();
+            }
 
             // Намиране на групата, към която потребителят принадлежи или която е създател
-            var userGroup = await context.Groups
+            var userGroup = await _context.Groups
                 .Include(g => g.Members)
                 .FirstOrDefaultAsync(g => g.Members.Any(m => m.Id == user.Id) || g.CreatorId == user.Id);
 
@@ -98,13 +99,12 @@ namespace ArtJamWebApp.Controllers
 
             if (userGroup != null)
             {
-                // Потребителят е член или създател на група, така че можем да позволим публикуване от името на групата
-                ViewBag.UserGroup = userGroup.GroupName;
-                ViewBag.IsGroupCreator = userGroup.CreatorId == user.Id;
+                model.IsGroupPost = true;
+                model.UserGroupName = userGroup.GroupName;
+                model.IsGroupCreator = userGroup.CreatorId == user.Id;
             }
             else
             {
-                // Потребителят не принадлежи на никаква група, така че не може да публикува като група
                 model.IsGroupPost = false;
             }
 
@@ -119,9 +119,13 @@ namespace ArtJamWebApp.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Challenge();
+                }
 
                 // Намиране на групата, към която потребителят принадлежи или която е създател
-                var userGroup = await context.Groups
+                var userGroup = await _context.Groups
                     .Include(g => g.Members)
                     .FirstOrDefaultAsync(g => g.Members.Any(m => m.Id == user.Id) || g.CreatorId == user.Id);
 
@@ -129,14 +133,14 @@ namespace ArtJamWebApp.Controllers
                 {
                     Title = model.Title,
                     Content = model.Content,
-                    CreatedDate = model.CreatedDate
+                    CreatedDate = DateTime.Now
                 };
 
                 if (model.IsGroupPost)
                 {
                     if (userGroup == null)
                     {
-                        ModelState.AddModelError("", "Не сте член или създател на никаква група.");
+                        ModelState.AddModelError("", "You are not a member or creator of any group.");
                         return View(model);
                     }
 
@@ -146,7 +150,7 @@ namespace ArtJamWebApp.Controllers
 
                     if (!isGroupCreator && !isGroupMember)
                     {
-                        ModelState.AddModelError("", "Нямате права да публикувате от името на групата.");
+                        ModelState.AddModelError("", "You do not have permission to post on behalf of the group.");
                         return View(model);
                     }
 
@@ -157,32 +161,47 @@ namespace ArtJamWebApp.Controllers
                     post.UserId = user.Id;
                 }
 
-                context.Posts.Add(post);
-                await context.SaveChangesAsync();
+                _context.Posts.Add(post);
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error saving new post to database.");
+                    ModelState.AddModelError("", "We were unable to create the post.");
+                    return View(model);
+                }
 
+                TempData["SuccessMessage"] = "The publication was successfully created.";
                 return RedirectToAction("All");
             }
 
             // Ако моделът не е валиден, повторно зареждане на информация за групата
             var currentUser = await _userManager.GetUserAsync(User);
-            var currentGroup = await context.Groups
+            var currentGroup = await _context.Groups
                 .Include(g => g.Members)
                 .FirstOrDefaultAsync(g => g.Members.Any(m => m.Id == currentUser.Id) || g.CreatorId == currentUser.Id);
 
             if (currentGroup != null)
             {
-                ViewBag.UserGroup = currentGroup.GroupName;
-                ViewBag.IsGroupCreator = currentGroup.CreatorId == currentUser.Id;
+                model.IsGroupPost = true;
+                model.UserGroupName = currentGroup.GroupName;
+                model.IsGroupCreator = currentGroup.CreatorId == currentUser.Id;
+            }
+            else
+            {
+                model.IsGroupPost = false;
             }
 
             return View(model);
         }
 
-        // Get: Feed/Edit
+        // GET: Feed/Edit/{id} - Display form to edit a post
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var post = await context.Posts
+            var post = await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Group)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -193,15 +212,19 @@ namespace ArtJamWebApp.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
 
             // Проверка дали текущият потребител е създател на публикацията
             if (post.User != null && post.User.Id != currentUser.Id)
             {
-                return Forbid(); // или return Unauthorized();
+                return Forbid();
             }
             else if (post.Group != null && post.Group.CreatorId != currentUser.Id)
             {
-                return Forbid(); // или return Unauthorized();
+                return Forbid();
             }
 
             var model = new CreatePostViewModel
@@ -211,19 +234,30 @@ namespace ArtJamWebApp.Controllers
                 IsGroupPost = post.Group != null
             };
 
+            if (post.Group != null)
+            {
+                var userGroup = await _context.Groups
+                    .Include(g => g.Members)
+                    .FirstOrDefaultAsync(g => g.Id == post.GroupId);
+
+                model.UserGroupName = userGroup?.GroupName;
+                model.IsGroupCreator = userGroup?.CreatorId == currentUser.Id;
+            }
+
             return View(model);
         }
 
-        // POST: Feed/Edit
+        // POST: Feed/Edit/{id} - Handle post edit form submission
         [HttpPost]
-        public async Task<IActionResult> Edit(CreatePostViewModel model, Guid id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Guid id, CreatePostViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var post = await context.Posts
+            var post = await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Group)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -234,6 +268,10 @@ namespace ArtJamWebApp.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
 
             if (post.User != null)
             {
@@ -255,14 +293,26 @@ namespace ArtJamWebApp.Controllers
             post.Title = model.Title;
             post.Content = model.Content;
 
-            await context.SaveChangesAsync();
-            return RedirectToAction(nameof(All));
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating post {PostId}.", id);
+                ModelState.AddModelError("", "We were unable to update the post.");
+                return View(model);
+            }
+
+            TempData["SuccessMessage"] = "The post was successfully edited.";
+            return RedirectToAction("All");
         }
 
+        // GET: Feed/Delete/{id} - Display confirmation form to delete a post
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var post = await context.Posts
+            var post = await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Group)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -273,18 +323,22 @@ namespace ArtJamWebApp.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
 
             // Проверка дали текущият потребител е създател на публикацията
             if (post.User != null && post.User.Id != currentUser.Id)
             {
-                return Forbid(); // или return Unauthorized();
+                return Forbid();
             }
             else if (post.Group != null && post.Group.CreatorId != currentUser.Id)
             {
-                return Forbid(); // или return Unauthorized();
+                return Forbid();
             }
 
-            var model = new DelateViewModel
+            var model = new DeleteViewModel
             {
                 Id = post.Id,
                 Title = post.Title,
@@ -294,10 +348,12 @@ namespace ArtJamWebApp.Controllers
             return View(model);
         }
 
+        // POST: Feed/DeleteConfirmed - Handle post deletion
         [HttpPost]
-        public async Task<IActionResult> DeleteConfirmed(DelateViewModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(DeleteViewModel model)
         {
-            var post = await context.Posts
+            var post = await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Group)
                 .FirstOrDefaultAsync(p => p.Id == model.Id);
@@ -308,21 +364,42 @@ namespace ArtJamWebApp.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
 
             // Проверка дали текущият потребител е създател на публикацията
             if (post.User != null && post.User.Id != currentUser.Id)
             {
-                return Forbid(); // или return Unauthorized();
+                return Forbid();
             }
             else if (post.Group != null && post.Group.CreatorId != currentUser.Id)
             {
                 return Forbid();
             }
 
-            context.Posts.Remove(post);
-            await context.SaveChangesAsync();
+            _context.Posts.Remove(post);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting post {PostId}.", model.Id);
+                TempData["ErrorMessage"] = "We were unable to delete the post.";
+                return View(model);
+            }
 
-            return RedirectToAction(nameof(All));
+            TempData["SuccessMessage"] = "The post was successfully deleted.";
+            return RedirectToAction("All");
+        }
+
+        // GET: Feed/UserDetails/{id} - Redirect to UserController Details
+        [HttpGet]
+        public IActionResult UserDetails(Guid id)
+        {
+            return RedirectToAction("Details", "User", new { id });
         }
     }
 }

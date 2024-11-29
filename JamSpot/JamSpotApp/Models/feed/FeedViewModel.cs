@@ -8,21 +8,24 @@ namespace JamSpotApp.Models.feed
 
         public string? Image { get; set; }
 
-        public required string Title { get; set; }
+        [Required]
+        public string Title { get; set; } = string.Empty;
 
         [Required]
-        public required string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
 
         public string? Instrument { get; set; }
 
         [Required]
-        public required string Publisher { get; set; }
+        public string Publisher { get; set; } = string.Empty;
 
         public Guid? PublisherId { get; set; }
 
         [Required]
         public string CreatedDate { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
+
         public bool IsGroupPost { get; set; }
+
         public bool CanEdit { get; set; }
     }
 }

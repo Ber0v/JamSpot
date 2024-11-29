@@ -4,16 +4,15 @@ namespace JamSpotApp.Models.feed
 {
     public class CreatePostViewModel
     {
-        public Guid Id { get; internal set; }
-
-        [Required(ErrorMessage = "Заглавието е задължително.")]
-        [StringLength(50, ErrorMessage = "Заглавието трябва да е между 1 и 50 символа.", MinimumLength = 1)]
+        [Required(ErrorMessage = "The title is required.")]
+        [StringLength(50, ErrorMessage = "The title must be between 1 and 50 characters.", MinimumLength = 1)]
         public string Title { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Съдържанието е задължително.")]
-        [StringLength(1000, ErrorMessage = "Съдържанието трябва да е между 5 и 1000 символа.", MinimumLength = 5)]
+        [Required(ErrorMessage = "Content is mandatory.")]
+        [StringLength(1000, ErrorMessage = "The content must be between 5 and 1000 characters.", MinimumLength = 5)]
         public string Content { get; set; } = string.Empty;
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
         public bool IsGroupPost { get; set; }
+        public string? UserGroupName { get; set; }
+        public bool IsGroupCreator { get; set; }
     }
 }
