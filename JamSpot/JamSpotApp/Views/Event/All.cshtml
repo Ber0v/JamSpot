@@ -1,108 +1,143 @@
 ﻿@model JamSpotApp.Models.Event.EventListViewModel
+@using System.Security.Claims
+
+@{
+    // Retrieve the current user's ID
+    var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    Guid currentUserId = Guid.Empty;
+    if (!Guid.TryParse(currentUserIdStr, out currentUserId))
+    {
+        currentUserId = Guid.Empty;
+    }
+}
+
+<link rel="stylesheet" href="~/css/Event.css" asp-append-version="true" />
+
+<div class="container mt-3">
+    <a asp-action="CreateEvent" class="btn btn-outline-primary float-end rounded-pill">Add Event</a>
+    <h2 class="text-center">All Events</h2>
+    <hr />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Display Error Message -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
 
-<a asp-action="CreateEvent" class="btn btn-outline-primary float-end rounded-pill">Add Event</a>
-<h2 class="mt-3 text-center">All Events</h2>
-<hr />
-
-<div class="container">
-    <div class="row row-cols-1 row-cols-md-2 g-4">
-        @foreach (var eventItem in Model.Events)
-        {
-            <div class="col">
-                <div class="card rounded-4 custom-navbar">
-                    <div class="card-header bg-dark text-white rounded-4">
-                        <h5 class="card-title mb-1">@eventItem.EventName</h5>
-                        @if (eventItem.Price == 0)
-                        {
-                        <span class="badge bg-success">Free</span>
-                        }
-                        else{
-                            <span class="badge bg-danger">@eventItem.Price BGN</span>
-                        }
-                        <p class="card-text mb-1 float-end"><strong>Organizer:</strong> @eventItem.Organizer</p>
-                    </div>
-
-                    <div class="card-body">
-                        <p class="card-text mb-1"><strong>Description:</strong> @eventItem.EventDescription</p>
-                        <p class="card-text">
-                            <strong>Location:</strong>
-                            @if (Uri.IsWellFormedUriString(eventItem.Location, UriKind.Absolute))
-                            {
-                                <a href="@eventItem.Location" target="_blank" class="btn btn-outline-primary btn-sm">Open Location</a>
-                            }
-                            else
-                            {
-                                @eventItem.Location
-                            }
-                        </p>
-                    </div>
-
-                    <div class="card-footer d-flex justify-content-between align-items-center border-secondary">
-                        <div>
-                            <p class="mb-0"><strong>Date:</strong> @eventItem.Date</p>
-                            <p class="mb-0"><strong>Hour:</strong> @eventItem.Hour</p>
+    @if (!Model.Events.Any())
+    {
+        <div class="alert alert-info text-center">No events available.</div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            @foreach (var eventItem in Model.Events)
+            {
+                <div class="col">
+                    <div class="card rounded-4 custom-navbar">
+                        <div class="card-header bg-dark text-white rounded-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title mb-1">@eventItem.EventName</h5>
+                                    @if (eventItem.Price == 0)
+                                    {
+                                        <span class="badge bg-success">Free</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">@eventItem.Price BGN</span>
+                                    }
+                                </div>
+                                <p class="card-text mb-1"><strong>Organizer:</strong> @eventItem.Organizer</p>
+                            </div>
                         </div>
-                        @if (User?.Identity?.Name == eventItem.Organizer)
-                        {
-                            <a asp-action="Delete" asp-route-id="@eventItem.Id" class="btn btn-outline-danger">Delete</a>
-                        }
+
+                        <div class="card-body">
+                            <p class="card-text mb-1"><strong>Description:</strong> @eventItem.EventDescription</p>
+                            <p class="card-text">
+                                <strong>Location:</strong>
+                                @if (Uri.IsWellFormedUriString(eventItem.Location, UriKind.Absolute))
+                                {
+                                    <a href="@eventItem.Location" target="_blank" class="btn btn-outline-primary btn-sm">Open Location</a>
+                                }
+                                else
+                                {
+                                    @eventItem.Location
+                                }
+                            </p>
+                        </div>
+
+                        <div class="card-footer d-flex justify-content-between align-items-center border-secondary">
+                            <div>
+                                <p class="mb-0"><strong>Date:</strong> @eventItem.Date</p>
+                                <p class="mb-0"><strong>Hour:</strong> @eventItem.Hour</p>
+                            </div>
+                            @if (eventItem.OrganizerId == currentUserId)
+                            {
+                                <a asp-action="Delete" asp-route-id="@eventItem.Id" class="btn btn-outline-danger">Delete</a>
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
-    @if (Model.TotalPages > 1)
-    {
-        <!-- Контроли за пагинация -->
-        <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
-                @if (Model.CurrentPage > 1)
-                {
-                    <li class="page-item">
-                        <a class="btn btn-outline-primary" asp-action="All" asp-route-pageNumber="@(Model.CurrentPage - 1)" aria-label="Previous">
-                            Previous
-                        </a>
-                    </li>
-                }
-                else
-                {
-                    <li class="page-item disabled">
-                        <span class="btn btn-outline-primary">Previous</span>
-                    </li>
-                }
+            }
+        </div>
 
-                @for (int i = 1; i <= Model.TotalPages; i++)
-                {
-                    if (i == Model.CurrentPage)
+        @if (Model.TotalPages > 1)
+        {
+            <!-- Pagination Controls -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+
+                    @if (Model.CurrentPage > 1)
                     {
-                        <li class="page-item active">
-                            <span class="btn btn-primary">@i</span>
-                        </li>
+                        <a class="btn btn-outline-primary" asp-action="All" asp-route-pageNumber="@(Model.CurrentPage - 1)" aria-label="Previous">
+                            <span aria-hidden="true">Previous</span>
+                        </a>
                     }
                     else
                     {
-                        <li class="page-item">
+                        <li class="page-item disabled">
+                            <span class="btn btn-outline-primary">Previous</span>
+                        </li>
+                    }
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
                             <a class="btn btn-outline-primary" asp-action="All" asp-route-pageNumber="@i">@i</a>
                         </li>
                     }
-                }
 
-                @if (Model.CurrentPage < Model.TotalPages)
-                {
-                    <li class="page-item">
+                    @if (Model.CurrentPage < Model.TotalPages)
+                    {
                         <a class="btn btn-outline-primary" asp-action="All" asp-route-pageNumber="@(Model.CurrentPage + 1)" aria-label="Next">
-                            Next
+                            <span aria-hidden="true">Next</span>
                         </a>
-                    </li>
-                }
-                else
-                {
-                    <li class="page-item disabled">
-                        <span class="btn btn-outline-primary">Next</span>
-                    </li>
-                }
-            </ul>
-        </nav>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <span class="btn btn-outline-primary">Next</span>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
     }
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

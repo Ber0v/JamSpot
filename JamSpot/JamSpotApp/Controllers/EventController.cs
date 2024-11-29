@@ -1,14 +1,14 @@
 ﻿using JamSpotApp.Data;
 using JamSpotApp.Data.Models;
+using JamSpotApp.Models.Event;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace JamSpotApp.Controllers
 {
-    using JamSpotApp.Models.Event;
-    using Microsoft.AspNetCore.Identity;
-    using Microsoft.EntityFrameworkCore;
-    using System.Globalization;
-
     public class EventController : Controller
     {
         private readonly JamSpotDbContext context;
@@ -20,9 +20,10 @@ namespace JamSpotApp.Controllers
             _userManager = userManager;
         }
 
+        // GET: /Event/All - Display all upcoming events with pagination
         public async Task<IActionResult> All(int pageNumber = 1)
         {
-            int pageSize = 4; // Брой на събитията на страница
+            int pageSize = 4; // Number of events per page
 
             var user = await _userManager.GetUserAsync(User);
 
@@ -32,13 +33,13 @@ namespace JamSpotApp.Controllers
             var isMemberOfGroup = await context.Groups
                 .AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
 
-            // Общо брой на събитията
+            // Total number of upcoming events
             var totalEvents = await context.Events.CountAsync(e => e.Date >= DateTime.Today);
 
-            // Изчисляване на общия брой страници
+            // Calculate total pages
             int totalPages = (int)Math.Ceiling(totalEvents / (double)pageSize);
 
-            // Извличане на събитията за текущата страница
+            // Retrieve events for the current page
             var events = await context.Events
                 .Include(e => e.Organizer)
                 .Where(e => e.Date >= DateTime.Today)
@@ -52,6 +53,7 @@ namespace JamSpotApp.Controllers
                     EventDescription = e.EventDescription,
                     Price = e.Price,
                     Organizer = e.Organizer.UserName,
+                    OrganizerId = e.Organizer.Id, // Added OrganizerId for authorization in view
                     Location = e.Location,
                     Date = e.Date.ToString("dd.MM.yyyy"),
                     Hour = e.Hour.ToString("HH\\:mm"),
@@ -72,7 +74,7 @@ namespace JamSpotApp.Controllers
             return View(model);
         }
 
-
+        // GET: /Event/CreateEvent - Display form for creating a new event
         [HttpGet]
         public IActionResult CreateEvent()
         {
@@ -80,7 +82,7 @@ namespace JamSpotApp.Controllers
             return View(model);
         }
 
-        // POST: /Event/CreateEvent 
+        // POST: /Event/CreateEvent - Handle form submission for creating a new event
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateEvent(CreateEventViewModel model)
@@ -88,95 +90,255 @@ namespace JamSpotApp.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
-                DateTime Date;
+                DateTime date;
                 TimeOnly hour;
 
-                if (DateTime.TryParseExact(model.Date, "dd.MM.yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out Date) == false)
+                if (!DateTime.TryParseExact(model.Date, "dd.MM.yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out date))
                 {
-                    ModelState.AddModelError(nameof(model.Date), "Invalid date format");
+                    ModelState.AddModelError(nameof(model.Date), "Invalid date format.");
                     return View(model);
                 }
 
-                if (TimeOnly.TryParseExact(model.Hour, "HH\\:mm", CultureInfo.CurrentCulture, DateTimeStyles.None, out hour) == false)
+                if (!TimeOnly.TryParseExact(model.Hour, "HH\\:mm", CultureInfo.CurrentCulture, DateTimeStyles.None, out hour))
                 {
-                    ModelState.AddModelError(nameof(model.Hour), "Invalid time format");
+                    ModelState.AddModelError(nameof(model.Hour), "Invalid time format.");
                     return View(model);
                 }
 
-                var events = new Event
+                var newEvent = new Event
                 {
                     EventName = model.EventName,
                     EventDescription = model.EventDescription,
                     Price = model.Price,
                     Location = model.Location,
-                    Date = Date,
+                    Date = date,
                     Hour = hour,
                     Organizer = user
                 };
 
-                context.Events.Add(events);
-                await context.SaveChangesAsync();
+                context.Events.Add(newEvent);
+                try
+                {
+                    await context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "The event was successfully created.";
+                }
+                catch (Exception ex)
+                {
+                    // Log the error (implement logging as needed)
+                    ModelState.AddModelError("", "An error occurred while creating the event. Please try again.");
+                    return View(model);
+                }
 
                 return RedirectToAction("All");
             }
 
+            // If model state is invalid, return the view with validation messages
             return View(model);
         }
 
-        // GET: /Event/Delete/{id}
+        // GET: /Event/Edit/{id} - Display form to edit an event
         [HttpGet]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            var eventToDelete = await context.Events
+            var ev = await context.Events
                 .Include(e => e.Organizer)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
-            if (eventToDelete == null)
+            if (ev == null)
             {
                 return NotFound();
             }
 
-            // Проверка дали текущият потребител е организатор или администратор
             var currentUser = await _userManager.GetUserAsync(User);
-            if (eventToDelete.Organizer.Id != currentUser.Id && !User.IsInRole("Admin"))
+            if (ev.Organizer.Id != currentUser.Id)
+            {
+                return Forbid();
+            }
+
+            var model = new CreateEventViewModel
+            {
+                Id = ev.Id,
+                EventName = ev.EventName,
+                EventDescription = ev.EventDescription,
+                Price = ev.Price,
+                Location = ev.Location,
+                Date = ev.Date.ToString("dd.MM.yyyy"),
+                Hour = ev.Hour.ToString("HH\\:mm")
+            };
+
+            return View(model);
+        }
+
+        // POST: /Event/Edit/{id} - Handle form submission for editing an event
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Guid id, CreateEventViewModel model)
+        {
+            if (id != model.Id)
+            {
+                return BadRequest();
+            }
+
+            if (ModelState.IsValid)
+            {
+                var ev = await context.Events
+                    .Include(e => e.Organizer)
+                    .FirstOrDefaultAsync(e => e.Id == id);
+
+                if (ev == null)
+                {
+                    return NotFound();
+                }
+
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (ev.Organizer.Id != currentUser.Id)
+                {
+                    return Forbid();
+                }
+
+                DateTime date;
+                TimeOnly hour;
+
+                if (!DateTime.TryParseExact(model.Date, "dd.MM.yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out date))
+                {
+                    ModelState.AddModelError(nameof(model.Date), "Invalid date format.");
+                    return View(model);
+                }
+
+                if (!TimeOnly.TryParseExact(model.Hour, "HH\\:mm", CultureInfo.CurrentCulture, DateTimeStyles.None, out hour))
+                {
+                    ModelState.AddModelError(nameof(model.Hour), "Invalid time format.");
+                    return View(model);
+                }
+
+                ev.EventName = model.EventName;
+                ev.EventDescription = model.EventDescription;
+                ev.Price = model.Price;
+                ev.Location = model.Location;
+                ev.Date = date;
+                ev.Hour = hour;
+
+                try
+                {
+                    await context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "The event was successfully edited.";
+                }
+                catch (Exception ex)
+                {
+                    // Log the error (implement logging as needed)
+                    ModelState.AddModelError("", "An error occurred while editing the event. Please try again.");
+                    return View(model);
+                }
+
+                return RedirectToAction("All");
+            }
+
+            // If model state is invalid, return the view with validation messages
+            return View(model);
+        }
+
+        // GET: /Event/Delete/{id} - Display confirmation form to delete an event
+        [HttpGet]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var ev = await context.Events
+                .Include(e => e.Organizer)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (ev == null)
+            {
+                return NotFound();
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (ev.Organizer.Id != currentUser.Id)
             {
                 return Forbid();
             }
 
             var model = new DeleteEventViewModel
             {
-                Id = eventToDelete.Id,
-                EventName = eventToDelete.EventName,
-                Organizer = eventToDelete.Organizer.UserName
+                Id = ev.Id,
+                EventName = ev.EventName,
+                Organizer = ev.Organizer.UserName
             };
 
             return View(model);
         }
 
-        // POST: /Event/DeleteConfirmed
+        // POST: /Event/DeleteConfirmed - Handle event deletion
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(DeleteEventViewModel model)
         {
-            var eventToDelete = await context.Events
-                .Include(e => e.Organizer) // Включваме организатора за проверка
+            var ev = await context.Events
+                .Include(e => e.Organizer)
                 .FirstOrDefaultAsync(e => e.Id == model.Id);
 
-            if (eventToDelete == null)
+            if (ev == null)
             {
                 return NotFound();
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            if (eventToDelete.Organizer.Id != currentUser.Id && !User.IsInRole("Admin"))
+            if (ev.Organizer.Id != currentUser.Id)
             {
-                return Forbid(); // Забранен достъп
+                return Forbid();
             }
 
-            context.Events.Remove(eventToDelete);
-            await context.SaveChangesAsync();
+            context.Events.Remove(ev);
+            try
+            {
+                await context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "The event was successfully deleted.";
+            }
+            catch (Exception ex)
+            {
+                // Log the error (implement logging as needed)
+                TempData["ErrorMessage"] = "An error occurred while deleting the event. Please try again.";
+                return RedirectToAction("All");
+            }
 
-            return RedirectToAction(nameof(All));
+            return RedirectToAction("All");
+        }
+
+        // GET: /Event/Details/{id} - Display details of an event
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            var ev = await context.Events
+                .Include(e => e.Organizer)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (ev == null)
+            {
+                return NotFound();
+            }
+
+            var model = new EventViewModel
+            {
+                Id = ev.Id,
+                EventName = ev.EventName,
+                EventDescription = ev.EventDescription,
+                Price = ev.Price,
+                Location = ev.Location,
+                Date = ev.Date.ToString("dd.MM.yyyy"),
+                Hour = ev.Hour.ToString("HH\\:mm"),
+                Organizer = ev.Organizer.UserName,
+                OrganizerId = ev.Organizer.Id
+            };
+
+            return View(model);
+        }
+    }
+
+    // Допълнителен помощен клас за извличане на текущия потребител ID
+    public static class ContextExtensions
+    {
+        public static async Task<Guid> GetUserIdAsync(this JamSpotDbContext context, ClaimsPrincipal user, UserManager<User> userManager)
+        {
+            var currentUser = await userManager.GetUserAsync(user);
+            return currentUser != null ? currentUser.Id : Guid.Empty;
         }
     }
 }
