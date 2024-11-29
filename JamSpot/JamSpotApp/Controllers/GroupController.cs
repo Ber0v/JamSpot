@@ -460,11 +460,17 @@ namespace JamSpotApp.Controllers
             var groupToDelete = await _context.Groups
                 .Include(g => g.Creator)
                 .Include(g => g.Members)
+                .Include(g => g.Posts)
                 .FirstOrDefaultAsync(g => g.Id == model.Id);
 
             if (groupToDelete == null)
             {
                 return NotFound();
+            }
+
+            if (groupToDelete.Posts != null && groupToDelete.Posts.Any())
+            {
+                _context.Posts.RemoveRange(groupToDelete.Posts); // Assumes Posts is a DbSet in your DbContext
             }
 
             var user = await _userManager.GetUserAsync(User);
