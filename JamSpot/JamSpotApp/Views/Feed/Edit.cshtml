@@ -1,31 +1,35 @@
 ﻿@using JamSpotApp.Models.feed
 @model CreatePostViewModel
+
 <link rel="stylesheet" href="~/css/Feed.css" asp-append-version="true" />
 
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 50vh;">
-    <div class="Feed-container">
-        <h2>Edit Feed</h2>
+    <div class="Feed-container p-4 rounded shadow">
+        <h2 class="mb-4 text-center">Edit Post</h2>
 
         <form asp-action="Edit" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
 
             <div class="mb-3">
-                <label asp-for="Title" class="form-label-add-edit">Post Title</label>
+                <label asp-for="Title" class="form-label">Post Title</label>
                 <input asp-for="Title" class="form-control" aria-required="true" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
-                <label asp-for="Content" class="form-label-add-edit">Description</label>
+                <label asp-for="Content" class="form-label">Description</label>
                 <textarea asp-for="Content" class="form-control" aria-required="true" rows="5"></textarea>
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
-            <div class="mb-3">
-                <input class="btn btn-outline-warning btn-dark-text mb-2 w-100 py-3 fw-bold rounded" type="submit" value="Confirm" />
+
+            <div class="mt-4 d-flex justify-content-between">
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Delete</a>
+                <button type="submit" class="btn btn-outline-primary">Confirm</button>
             </div>
         </form>
     </div>
 </div>
-    
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

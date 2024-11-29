@@ -229,6 +229,7 @@ namespace JamSpotApp.Controllers
 
             var model = new CreatePostViewModel
             {
+                Id = post.Id,
                 Title = post.Title,
                 Content = post.Content,
                 IsGroupPost = post.Group != null

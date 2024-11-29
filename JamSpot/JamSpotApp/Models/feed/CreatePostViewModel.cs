@@ -4,6 +4,7 @@ namespace JamSpotApp.Models.feed
 {
     public class CreatePostViewModel
     {
+        public Guid Id { get; set; }
         [Required(ErrorMessage = "The title is required.")]
         [StringLength(50, ErrorMessage = "The title must be between 1 and 50 characters.", MinimumLength = 1)]
         public string Title { get; set; } = string.Empty;
