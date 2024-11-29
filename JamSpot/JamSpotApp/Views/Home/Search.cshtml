@@ -1,12 +1,8 @@
-﻿@using JamSpotApp.Models.Home
-@model SearchResultsViewModel
+﻿@model JamSpotApp.Models.Home.SearchResultsViewModel
+
 <link rel="stylesheet" href="~/css/Home.css" asp-append-version="true" />
-@{
-    ViewData["Title"] = "Search Results";
-}
 
 <div class="container mt-5">
-
     <div class="mt-4">
         @if (Model.Users.Any())
         {
@@ -14,8 +10,15 @@
             <div class="list-group mb-4">
                 @foreach (var user in Model.Users)
                 {
-                    <a href="/Feed/UserDetails/@user.Id" class="list-group-item list-group-item-action d-flex align-items-center">
-                        <img src="@user.AvatarUrl" alt="@user.UserName" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                    <a href="/User/All/@user.Id" class="list-group-item list-group-item-action d-flex align-items-center">
+                        @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                        {
+                            <img src="@user.AvatarUrl" alt="@user.UserName" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                        }
+                        else
+                        {
+                            <img src="~/images/default-avatar.png" alt="Default Avatar" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                        }
                         <span>@user.UserName</span>
                     </a>
                 }
@@ -33,7 +36,14 @@
                 @foreach (var group in Model.Groups)
                 {
                     <a href="/Group/Details/@group.Id" class="list-group-item list-group-item-action d-flex align-items-center">
-                        <img src="@group.LogoUrl" alt="@group.GroupName" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                        @if (!string.IsNullOrEmpty(group.LogoUrl))
+                        {
+                            <img src="@group.LogoUrl" alt="@group.GroupName" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                        }
+                        else
+                        {
+                            <img src="~/images/default-group.png" alt="Default Group Logo" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                        }
                         <span>@group.GroupName</span>
                     </a>
                 }
@@ -45,3 +55,7 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

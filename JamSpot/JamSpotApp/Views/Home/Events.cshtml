@@ -1,27 +1,31 @@
 ﻿@model IEnumerable<JamSpotApp.Models.Event.EventViewModel>
 
-    @if (Model == null || !Model.Any())
-    {
-        <p class="text-center">No events yet.</p>
-    }
-    else
-    {
+@if (Model == null || !Model.Any())
+{
+    <p class="text-center">No events yet.</p>
+}
+else
+{
     <div class="row row-cols-1 row-cols-md-2 g-4">
         @foreach (var eventItem in Model)
         {
             <div class="col">
                 <div class="card h-100 rounded-4 custom-navbar">
                     <div class="card-header bg-dark text-white rounded-4">
-                        <h5 class="card-title mb-1">@eventItem.EventName</h5>
-                        @if (eventItem.Price == 0)
-                        {
-                            <span class="badge bg-success">Free</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-danger">@eventItem.Price BGN</span>
-                        }
-                        <p class="card-text mb-1 float-end"><strong>Organizer:</strong> @eventItem.Organizer</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title mb-1">@eventItem.EventName</h5>
+                                @if (eventItem.Price == 0)
+                                {
+                                    <span class="badge bg-success">Free</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">@eventItem.Price BGN</span>
+                                }
+                            </div>
+                            <p class="card-text mb-1"><strong>Organizer:</strong> @eventItem.Organizer</p>
+                        </div>
                     </div>
 
                     <div class="card-body">
@@ -48,8 +52,8 @@
                 </div>
             </div>
         }
-        <div class="d-flex justify-content-center align-items-center">
-        <a asp-controller="Event" asp-action="All" class="btn btn-outline-primary rounded btn-dark-text">View more</a>
+        <div class="d-flex justify-content-center align-items-center mt-4">
+            <a asp-controller="Event" asp-action="All" class="btn btn-outline-primary rounded btn-dark-text">View More Events</a>
+        </div>
     </div>
-    </div>
-    }
+}

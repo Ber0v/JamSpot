@@ -5,7 +5,7 @@ namespace JamSpotApp.Models.Home
 {
     public class IndexViewModel
     {
-        public List<EventViewModel> Events { get; set; }
-        public List<FeedViewModel> Posts { get; set; }
+        public List<EventViewModel> Events { get; set; } = new List<EventViewModel>();
+        public List<FeedViewModel> Posts { get; set; } = new List<FeedViewModel>();
     }
 }

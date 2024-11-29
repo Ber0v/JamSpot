@@ -23,51 +23,66 @@ namespace JamSpotApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // Вземане на събития
-            var events = await _context.Events
-                .Include(e => e.Organizer)
-                .Where(e => e.Date >= DateTime.Today)
-                .OrderBy(e => e.Date)
-                .Take(3)
-                .Select(e => new EventViewModel()
-                {
-                    Id = e.Id,
-                    EventName = e.EventName,
-                    EventDescription = e.EventDescription,
-                    Price = e.Price,
-                    Organizer = e.Organizer.UserName,
-                    Location = e.Location,
-                    Date = e.Date.ToString("dd.MM.yyyy"),
-                    Hour = e.Hour.ToString("HH\\:mm"),
-                })
-                .ToListAsync();
+            _logger.LogInformation("Index action invoked.");
 
-            // Вземане на публикации
-            var posts = await _context.Posts
-                .Include(p => p.User)
-                .Take(2)
-                .Select(p => new FeedViewModel()
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    Content = p.Content,
-                    Instrument = p.User.Instrument,
-                    Image = p.User != null ? p.User.ProfilePicture : (p.Group != null ? p.Group.Logo : null),
-                    Publisher = p.User != null ? p.User.UserName : (p.Group != null ? p.Group.GroupName : null),
-                    PublisherId = p.User.Id,
-                    CreatedDate = p.CreatedDate.ToString("yyyy-MM-dd"),
-                })
-                .AsNoTracking()
-                .ToListAsync();
-
-            // Комбиниране в модел
-            var model = new IndexViewModel
+            try
             {
-                Events = events ?? new List<EventViewModel>(),
-                Posts = posts ?? new List<FeedViewModel>()
-            };
+                // Retrieve upcoming events with AsNoTracking for performance
+                var events = await _context.Events
+                    .AsNoTracking()
+                    .Include(e => e.Organizer)
+                    .Where(e => e.Date >= DateTime.Today)
+                    .OrderBy(e => e.Date)
+                    .Take(3)
+                    .Select(e => new EventViewModel()
+                    {
+                        Id = e.Id,
+                        EventName = e.EventName,
+                        EventDescription = e.EventDescription,
+                        Price = e.Price,
+                        Organizer = e.Organizer.UserName,
+                        OrganizerId = e.Organizer.Id,
+                        Location = e.Location,
+                        Date = e.Date.ToString("dd.MM.yyyy"),
+                        Hour = e.Hour.ToString("HH\\:mm"),
+                    })
+                    .ToListAsync();
 
-            return View(model);
+                // Retrieve latest posts with AsNoTracking
+                var posts = await _context.Posts
+                    .AsNoTracking()
+                    .Include(p => p.User)
+                    .Take(2)
+                    .Select(p => new FeedViewModel()
+                    {
+                        Id = p.Id,
+                        Title = p.Title,
+                        Content = p.Content,
+                        Instrument = p.User.Instrument,
+                        Image = p.User != null ? p.User.ProfilePicture : (p.Group != null ? p.Group.Logo : null),
+                        Publisher = p.User != null ? p.User.UserName : (p.Group != null ? p.Group.GroupName : null),
+                        PublisherId = p.User != null ? p.User.Id : Guid.Empty,
+                        CreatedDate = p.CreatedDate.ToString("yyyy-MM-dd"),
+                    })
+                    .ToListAsync();
+
+                // Combine into the IndexViewModel
+                var model = new IndexViewModel
+                {
+                    Events = events ?? new List<EventViewModel>(),
+                    Posts = posts ?? new List<FeedViewModel>()
+                };
+
+                _logger.LogInformation("Index action completed successfully.");
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while loading the home page.");
+                // Optionally, redirect to an error page or display a user-friendly message
+                return StatusCode(500, "An internal server error occurred.");
+            }
         }
 
         [HttpGet]
@@ -79,9 +94,15 @@ namespace JamSpotApp.Controllers
                 return BadRequest("Query cannot be empty.");
             }
 
+            _logger.LogInformation("Search action invoked with query: {Query}", query);
+
             try
             {
+                // Limit the number of results to enhance performance
+                int maxResults = 10;
+
                 var users = await _context.Users
+                    .AsNoTracking()
                     .Where(u => EF.Functions.Like(u.UserName, $"%{query}%"))
                     .Select(u => new UserResultViewModel
                     {
@@ -89,9 +110,11 @@ namespace JamSpotApp.Controllers
                         UserName = u.UserName,
                         AvatarUrl = u.ProfilePicture
                     })
+                    .Take(maxResults)
                     .ToListAsync();
 
                 var groups = await _context.Groups
+                    .AsNoTracking()
                     .Where(g => EF.Functions.Like(g.GroupName, $"%{query}%"))
                     .Select(g => new GroupResultViewModel
                     {
@@ -99,6 +122,7 @@ namespace JamSpotApp.Controllers
                         GroupName = g.GroupName,
                         LogoUrl = g.Logo
                     })
+                    .Take(maxResults)
                     .ToListAsync();
 
                 var viewModel = new SearchResultsViewModel
@@ -126,23 +150,44 @@ namespace JamSpotApp.Controllers
                 return Json(new { users = new List<object>(), groups = new List<object>() });
             }
 
-            var users = await _context.Users
-                .Where(u => EF.Functions.Like(u.UserName, $"%{query}%"))
-                .Select(u => new { u.Id, u.UserName, avatarUrl = u.ProfilePicture })
-                .ToListAsync();
+            _logger.LogInformation("AutoComplete action invoked with query: {Query}", query);
 
-            var groups = await _context.Groups
-                .Where(g => EF.Functions.Like(g.GroupName, $"%{query}%"))
-                .Select(g => new { g.Id, g.GroupName, logoUrl = g.Logo })
-                .ToListAsync();
+            try
+            {
+                // Limit the number of results to enhance performance
+                int maxResults = 5;
 
-            return Json(new { users = users, groups = groups });
+                var users = await _context.Users
+                    .AsNoTracking()
+                    .Where(u => EF.Functions.Like(u.UserName, $"%{query}%"))
+                    .Select(u => new { u.Id, u.UserName, avatarUrl = u.ProfilePicture })
+                    .Take(maxResults)
+                    .ToListAsync();
+
+                var groups = await _context.Groups
+                    .AsNoTracking()
+                    .Where(g => EF.Functions.Like(g.GroupName, $"%{query}%"))
+                    .Select(g => new { g.Id, g.GroupName, logoUrl = g.Logo })
+                    .Take(maxResults)
+                    .ToListAsync();
+
+                _logger.LogInformation("AutoComplete search completed successfully for query: {Query}", query);
+
+                return Json(new { users = users, groups = groups });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred during autocomplete search with query: {Query}", query);
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
+            _logger.LogError("Error action invoked.");
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
+

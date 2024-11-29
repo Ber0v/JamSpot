@@ -1,58 +1,82 @@
-﻿const searchInput = document.getElementById('searchInput');
-const dropdownMenu = document.getElementById('dropdownMenu');
+﻿document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const dropdownMenu = document.getElementById('dropdownMenu');
 
-searchInput.addEventListener('input', async () => {
-    const query = searchInput.value.trim();
+    if (searchInput) {
+        searchInput.addEventListener('input', async function () {
+            const query = this.value.trim();
 
-    if (query.length < 2) {
-        dropdownMenu.style.display = 'none';
-        return;
-    }
+            if (query.length === 0) {
+                dropdownMenu.style.display = 'none';
+                dropdownMenu.innerHTML = '';
+                return;
+            }
 
-    console.log('Fetching data for:', query);
+            try {
+                const response = await fetch(`/Home/AutoComplete?query=${encodeURIComponent(query)}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
 
-    try {
-        const response = await fetch(`/Home/AutoComplete?query=${encodeURIComponent(query)}`);
-        const data = await response.json();
+                const data = await response.json();
+                dropdownMenu.innerHTML = '';
 
-        console.log('Response:', data);
+                // Populate Users
+                if (data.users.length > 0) {
+                    const usersHeader = document.createElement('h6');
+                    usersHeader.className = 'dropdown-header';
+                    usersHeader.textContent = 'Users';
+                    dropdownMenu.appendChild(usersHeader);
 
-        let resultsHtml = '';
+                    data.users.forEach(user => {
+                        const userItem = document.createElement('a');
+                        userItem.href = `/User/All/${user.id}`;
+                        userItem.className = 'dropdown-item d-flex align-items-center';
+                        userItem.innerHTML = `
+                            <img src="${user.avatarUrl || '/images/default-avatar.png'}" alt="${user.userName}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                            <span>${user.userName}</span>
+                        `;
+                        dropdownMenu.appendChild(userItem);
+                    });
+                }
 
-        // Users
-        if (data.users.length > 0) {
-            resultsHtml += '<h6 class="dropdown-header">Users</h6>';
-            data.users.forEach(user => {
-                resultsHtml += `
-                        <a href="/Feed/UserDetails/${user.id}" class="dropdown-item">
-                            <img src="${user.avatarUrl}" alt="${user.userName}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-                            ${user.userName}
-                        </a>`;
-            });
-        }
+                // Populate Groups
+                if (data.groups.length > 0) {
+                    const groupsHeader = document.createElement('h6');
+                    groupsHeader.className = 'dropdown-header';
+                    groupsHeader.textContent = 'Groups';
+                    dropdownMenu.appendChild(groupsHeader);
 
-        // Groups
-        if (data.groups.length > 0) {
-            resultsHtml += '<h6 class="dropdown-header">Groups</h6>';
-            data.groups.forEach(group => {
-                resultsHtml += `
-                        <a href="/Group/Details/${group.id}" class="dropdown-item">
-                            <img src="${group.logoUrl}" alt="${group.groupName}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-                            ${group.groupName}
-                        </a>`;
-            });
-        }
+                    data.groups.forEach(group => {
+                        const groupItem = document.createElement('a');
+                        groupItem.href = `/Group/Details/${group.id}`;
+                        groupItem.className = 'dropdown-item d-flex align-items-center';
+                        groupItem.innerHTML = `
+                            <img src="${group.logoUrl || '/images/default-group.png'}" alt="${group.groupName}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                            <span>${group.groupName}</span>
+                        `;
+                        dropdownMenu.appendChild(groupItem);
+                    });
+                }
 
-        dropdownMenu.innerHTML = resultsHtml;
-        dropdownMenu.style.display = resultsHtml ? 'block' : 'none';
-    } catch (error) {
-        console.error('Error fetching autocomplete data:', error);
-        dropdownMenu.style.display = 'none';
-    }
-});
+                if (data.users.length > 0 || data.groups.length > 0) {
+                    dropdownMenu.style.display = 'block';
+                } else {
+                    dropdownMenu.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error fetching autocomplete data:', error);
+                dropdownMenu.style.display = 'none';
+                dropdownMenu.innerHTML = '';
+            }
+        });
 
-document.addEventListener('click', (event) => {
-    if (!dropdownMenu.contains(event.target) && event.target !== searchInput) {
-        dropdownMenu.style.display = 'none';
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function (event) {
+            if (!searchInput.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.style.display = 'none';
+                dropdownMenu.innerHTML = '';
+            }
+        });
     }
 });
