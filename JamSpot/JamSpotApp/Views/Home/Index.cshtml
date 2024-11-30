@@ -6,6 +6,21 @@
 
 <div class="container">
     <main role="main" class="pb-3">
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
         <!-- Header Section -->
         <div class="mt-4 p-5 custom-navbar text-white rounded">
             <h1 class="d-flex justify-content-center">JamSpot</h1>

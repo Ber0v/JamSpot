@@ -1,0 +1,45 @@
+﻿@model IEnumerable<JamSpotApp.Models.Message.MessageViewModel>
+
+<h1>Съобщения</h1>
+
+<div class="btn-group">
+    <a asp-action="Index" asp-route-filter="all" class="btn btn-primary">Всички</a>
+    <a asp-action="Index" asp-route-filter="pinned" class="btn btn-secondary">Пиннати</a>
+    <a asp-action="Index" asp-route-filter="unpinned" class="btn btn-secondary">Непиннати</a>
+    <a asp-action="CreateAdminMessage" class="btn btn-success">Създаване на админ съобщение</a>
+</div>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Потребител</th>
+            <th>Заглавие</th>
+            <th>Съдържание</th>
+            <th>Дата</th>
+            <th>Пиннато</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var message in Model)
+        {
+            <tr>
+                <td>@message.Username</td>
+                <td>@message.Title</td>
+                <td>@message.Content</td>
+                <td>@message.CreatedAt</td>
+                <td>@(message.Pinned ? "Да" : "Не")</td>
+                <td>
+                    <form asp-action="TogglePin" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@message.Id" />
+                        <button type="submit" class="btn btn-warning">Пин/Отпин</button>
+                    </form>
+                    <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Сигурни ли сте?');">
+                        <input type="hidden" name="id" value="@message.Id" />
+                        <button type="submit" class="btn btn-danger">Изтриване</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
