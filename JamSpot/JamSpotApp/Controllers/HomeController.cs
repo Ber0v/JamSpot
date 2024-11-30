@@ -3,6 +3,7 @@ using JamSpotApp.Models;
 using JamSpotApp.Models.Event;
 using JamSpotApp.Models.feed;
 using JamSpotApp.Models.Home;
+using JamSpotApp.Models.Message;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -27,6 +28,24 @@ namespace JamSpotApp.Controllers
 
             try
             {
+                // Fetch admin messages
+                var adminMessages = await _context.Messages
+                    .Where(m => m.IsFromAdmin && m.Pinned)
+                    .OrderByDescending(m => m.CreatedAt)
+                    .Select(m => new MessageViewModel
+                    {
+                        Id = m.Id,
+                        Username = m.Username.UserName,
+                        Title = m.Title,
+                        Content = m.Content,
+                        CreatedAt = m.CreatedAt,
+                        IsFromAdmin = m.IsFromAdmin,
+                        Pinned = m.Pinned
+                    })
+                    .ToListAsync();
+
+                ViewBag.AdminMessages = adminMessages;
+
                 // Retrieve upcoming events with AsNoTracking for performance
                 var events = await _context.Events
                     .AsNoTracking()

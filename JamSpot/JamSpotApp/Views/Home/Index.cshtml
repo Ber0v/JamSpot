@@ -20,6 +20,20 @@
                 @TempData["ErrorMessage"]
             </div>
         }
+        @if (ViewBag.AdminMessages != null && ViewBag.AdminMessages.Count > 0)
+        {
+            <div class="admin-messages">
+                @foreach (var message in ViewBag.AdminMessages)
+                {
+                    <div class="admin-message alert alert-warning">
+                        <h1 class ="text-danger">Admin</h1>
+                        <h4>@message.Title</h4>
+                        <p>@message.Content</p>
+                        <small>Posted by @message.Username on @message.CreatedAt.ToString("g")</small>
+                    </div>
+                }
+            </div>
+        }
 
         <!-- Header Section -->
         <div class="mt-4 p-5 custom-navbar text-white rounded">
