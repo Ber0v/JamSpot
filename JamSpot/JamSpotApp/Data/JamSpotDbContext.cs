@@ -16,6 +16,7 @@ namespace JamSpotApp.Data
         public DbSet<Group> Groups { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<Message> Messages { get; set; }
         public DbSet<Song> Songs { get; set; }
         public DbSet<Album> Albums { get; set; }
 
@@ -29,6 +30,12 @@ namespace JamSpotApp.Data
             builder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+
+            builder.Entity<Message>()
+                .HasOne(m => m.Username)
+                .WithMany()
+                .HasForeignKey(m => m.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure Event relationships
             builder.Entity<Event>()
