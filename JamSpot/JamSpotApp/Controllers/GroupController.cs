@@ -23,18 +23,22 @@ namespace JamSpotApp.Controllers
         }
 
         // GET: /Group/All - Display all groups with pagination
+        [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> All(int pageNumber = 1)
         {
-            int pageSize = 10; // Number of groups per page
+            int pageSize = 10; // Брой групи на страница
 
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Challenge(); // Redirect to login if not authenticated
-            }
+            bool userHasGroup = false;
+            bool isMemberOfGroup = false;
 
-            var userHasGroup = await _context.Groups.AnyAsync(g => g.CreatorId == user.Id);
-            var isMemberOfGroup = await _context.Groups.AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
+            if (user != null)
+            {
+                userHasGroup = await _context.Groups.AnyAsync(g => g.CreatorId == user.Id);
+
+                isMemberOfGroup = await _context.Groups.AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
+            }
 
             // Total number of groups
             var totalGroups = await _context.Groups.CountAsync();
@@ -44,16 +48,16 @@ namespace JamSpotApp.Controllers
 
             // Retrieve groups for the current page
             var groups = await _context.Groups
-                .Include(p => p.Creator)
-                .OrderBy(p => p.GroupName)
+                .Include(g => g.Creator)
+                .OrderBy(g => g.GroupName)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(p => new GroupViewModel()
+                .Select(g => new GroupViewModel()
                 {
-                    Id = p.Id,
-                    GroupName = p.GroupName,
-                    Logo = p.Logo ?? DefaultLogo(),
-                    Genre = p.Genre,
+                    Id = g.Id,
+                    GroupName = g.GroupName,
+                    Logo = g.Logo ?? DefaultLogo(),
+                    Genre = g.Genre,
                 })
                 .AsNoTracking()
                 .ToListAsync();

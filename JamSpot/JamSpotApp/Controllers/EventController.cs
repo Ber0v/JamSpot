@@ -1,6 +1,7 @@
 ﻿using JamSpotApp.Data;
 using JamSpotApp.Data.Models;
 using JamSpotApp.Models.Event;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using System.Security.Claims;
 
 namespace JamSpotApp.Controllers
 {
+    [Authorize]
     public class EventController : Controller
     {
         private readonly JamSpotDbContext context;
@@ -21,6 +23,8 @@ namespace JamSpotApp.Controllers
         }
 
         // GET: /Event/All - Display all upcoming events with pagination
+        [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> All(int pageNumber = 1)
         {
             int pageSize = 4; // Number of events per page

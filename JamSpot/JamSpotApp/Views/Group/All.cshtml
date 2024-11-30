@@ -2,7 +2,7 @@
 
 <link rel="stylesheet" href="~/css/Feed.css" asp-append-version="true" />
 
-@if (!Model.UserHasGroup && !Model.IsMemberOfGroup)
+@if ((User?.Identity?.IsAuthenticated ?? false) && !Model.UserHasGroup && !Model.IsMemberOfGroup)
 {
     <div class="mb-3">
         <a asp-action="CreateGroup" class="btn btn-outline-primary float-end rounded-pill">Create Group</a>
