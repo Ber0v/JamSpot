@@ -1,6 +1,7 @@
 ﻿using JamSpotApp.Data;
 using JamSpotApp.Data.Models;
 using JamSpotApp.Models.Message;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -17,11 +18,16 @@ namespace JamSpotApp.Controllers
             _context = context;
         }
 
+        public List<Message> Messages { get; set; }
+
         // Преглед на съобщения (за администратори)
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public IActionResult Index(string filter = "all")
+        public IActionResult Index(string filter = "all", string searchTerm = null)
         {
+            ViewData["CurrentFilter"] = filter;
+            ViewData["SearchTerm"] = searchTerm;
+
             IQueryable<Message> query = _context.Messages;
 
             switch (filter)
@@ -32,6 +38,11 @@ namespace JamSpotApp.Controllers
                 case "unpinned":
                     query = query.Where(m => !m.Pinned);
                     break;
+            }
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(m => m.Username.UserName.Contains(searchTerm));
             }
 
             var messages = query
@@ -50,6 +61,7 @@ namespace JamSpotApp.Controllers
 
             return View(messages);
         }
+
 
         // Създаване на съобщение (за потребители)
         [HttpGet]
@@ -145,7 +157,7 @@ namespace JamSpotApp.Controllers
         // Пинване/отпинване на съобщение
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public IActionResult TogglePin(Guid id)
+        public IActionResult TogglePin(Guid id, string filter = "all")
         {
             var message = _context.Messages.Find(id);
             if (message == null)
@@ -156,14 +168,14 @@ namespace JamSpotApp.Controllers
             message.Pinned = !message.Pinned;
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { filter });
         }
 
         // Изтриване на съобщение
         [HttpPost]
         [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(Guid id)
+        public IActionResult Delete(Guid id, string filter = "all")
         {
             var message = _context.Messages.Find(id);
             if (message == null)
@@ -174,7 +186,8 @@ namespace JamSpotApp.Controllers
             _context.Messages.Remove(message);
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { filter });
         }
+
     }
 }
