@@ -4,6 +4,7 @@ namespace JamSpotApp.Models.Message
 {
     public class CreateMessageViewModel
     {
+        [StringLength(200, ErrorMessage = "The title must be between 5 and 200 characters.", MinimumLength = 5)]
         public string? Title { get; set; }
 
         [Required(ErrorMessage = "Content is mandatory.")]

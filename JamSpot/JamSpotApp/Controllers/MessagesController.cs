@@ -90,7 +90,7 @@ namespace JamSpotApp.Controllers
             _context.Messages.Add(message);
             _context.SaveChanges();
 
-            TempData["SuccessMessage"] = "Вашето съобщение беше изпратено успешно!";
+            TempData["SuccessMessage"] = "Your message was sent successfully!";
             return Redirect("/");
         }
 
