@@ -25,13 +25,20 @@ namespace JamSpotApp.Controllers
         {
             int pageSize = 4; // Number of events per page
 
+            // Attempt to get the current user; may be null if not authenticated
             var user = await _userManager.GetUserAsync(User);
 
-            var userHasGroup = await context.Groups
-                .AnyAsync(g => g.CreatorId == user.Id);
+            bool userHasGroup = false;
+            bool isMemberOfGroup = false;
 
-            var isMemberOfGroup = await context.Groups
-                .AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
+            if (user != null)
+            {
+                userHasGroup = await context.Groups
+                    .AnyAsync(g => g.CreatorId == user.Id);
+
+                isMemberOfGroup = await context.Groups
+                    .AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
+            }
 
             // Total number of upcoming events
             var totalEvents = await context.Events.CountAsync(e => e.Date >= DateTime.Today);

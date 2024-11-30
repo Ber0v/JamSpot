@@ -14,7 +14,10 @@
 <link rel="stylesheet" href="~/css/Event.css" asp-append-version="true" />
 
 <div class="container mt-3">
-    <a asp-action="CreateEvent" class="btn btn-outline-primary float-end rounded-pill">Add Event</a>
+    @if (User?.Identity?.IsAuthenticated ?? false)
+    {
+        <a asp-action="CreateEvent" class="btn btn-outline-primary float-end rounded-pill">Add Event</a>
+    }
     <h2 class="text-center">All Events</h2>
     <hr />
 
