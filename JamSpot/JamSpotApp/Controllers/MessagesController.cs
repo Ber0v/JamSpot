@@ -81,6 +81,7 @@ namespace JamSpotApp.Controllers
 
             var message = new Message
             {
+                Title = model.Title,
                 Content = model.Content,
                 CreatedAt = DateTime.Now,
                 UserId = Guid.Parse(userId),
