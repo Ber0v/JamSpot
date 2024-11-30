@@ -281,8 +281,8 @@ namespace JamSpotApp.Controllers
                 // Retrieve users that can be added to the group
                 var availableUsers = await _userManager.Users
                     .Where(u => !_context.Groups.Any(g => g.CreatorId == u.Id) &&
-                                !_context.Groups.Any(g => g.Members.Any(m => m.Id == u.Id)) &&
-                                u.Id != model.CreatorId)
+                            !_context.Groups.Any(g => g.Members.Any(m => m.Id == u.Id)) &&
+                            u.UserName != "Admin")
                     .Select(u => new UserSelectionViewModel
                     {
                         UserId = u.Id,

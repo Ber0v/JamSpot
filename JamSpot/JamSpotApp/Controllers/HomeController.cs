@@ -124,6 +124,7 @@ namespace JamSpotApp.Controllers
                 var users = await _context.Users
                     .AsNoTracking()
                     .Where(u => EF.Functions.Like(u.UserName, $"%{query}%"))
+                    .Where(u => u.UserName != "Admin")
                     .Select(u => new UserResultViewModel
                     {
                         Id = u.Id,
@@ -180,6 +181,7 @@ namespace JamSpotApp.Controllers
                 var users = await _context.Users
                     .AsNoTracking()
                     .Where(u => EF.Functions.Like(u.UserName, $"%{query}%"))
+                    .Where(u => u.UserName != "Admin")
                     .Select(u => new { u.Id, u.UserName, avatarUrl = u.ProfilePicture })
                     .Take(maxResults)
                     .ToListAsync();
