@@ -1,0 +1,28 @@
+﻿/* Основен фон и текстови цветове */
+body {
+    background-color: #2b2b2b;
+    color: #ffffff;
+}
+
+/* Контейнер за регистрационната форма */
+.message-container {
+    background-color: #3c3c3c;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 80%;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    margin-top: 80px;
+}
+
+/* Полета за формата */
+.form-control {
+    background-color: #4a4a4a;
+    color: #ffffff;
+    border: 1px solid #666;
+    border-radius: 15px;
+    margin-bottom: 1px;
+    padding: 9px;
+}
