@@ -24,20 +24,21 @@ namespace JamSpotApp.Controllers
 
         // GET: /Feed/All - Display all posts
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> All(int pageNumber = 1)
         {
             const int PageSize = 6;
 
             var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Challenge(); // Redirect to login if not authenticated
-            }
+            Group? userGroup = null;
 
-            // Намиране на групата, към която потребителят принадлежи или която е създател
-            var userGroup = await _context.Groups
-                .Include(g => g.Members)
-                .FirstOrDefaultAsync(g => g.Members.Any(m => m.Id == currentUser.Id) || g.CreatorId == currentUser.Id);
+            if (currentUser != null)
+            {
+                // Намиране на групата, към която потребителят принадлежи или която е създател
+                userGroup = await _context.Groups
+                    .Include(g => g.Members)
+                    .FirstOrDefaultAsync(g => g.Members.Any(m => m.Id == currentUser.Id) || g.CreatorId == currentUser.Id);
+            }
 
             // Общо броя на постовете
             int totalPosts = await _context.Posts.CountAsync();
@@ -64,8 +65,10 @@ namespace JamSpotApp.Controllers
                     PublisherId = p.User != null ? p.User.Id : p.GroupId,
                     CreatedDate = p.CreatedDate.ToString("yyyy-MM-dd"),
                     IsGroupPost = p.Group != null,
-                    CanEdit = (p.User != null && p.User.Id == currentUser.Id) ||
-                              (p.Group != null && userGroup != null && userGroup.CreatorId == currentUser.Id)
+                    CanEdit = currentUser != null && (
+                                (p.User != null && p.User.Id == currentUser.Id) ||
+                                (p.Group != null && userGroup != null && userGroup.CreatorId == currentUser.Id)
+                              )
                 })
                 .ToListAsync();
 

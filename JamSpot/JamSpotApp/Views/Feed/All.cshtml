@@ -3,7 +3,9 @@
 <link rel="stylesheet" href="~/css/Feed.css" asp-append-version="true" />
 
 <div class="container mt-3">
-    <a asp-action="CreatePost" class="btn btn-outline-primary float-end rounded-pill">Add Post</a>
+    @if (User?.Identity?.IsAuthenticated ?? false){
+        <a asp-action="CreatePost" class="btn btn-outline-primary float-end rounded-pill">Add Post</a>
+    }
         <h2 class="text-center">All Posts</h2>
     <hr />
 
