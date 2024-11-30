@@ -88,19 +88,50 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-
-        <div>
-            <a class="nav-link float-start" asp-controller="Messages" asp-action="Create">
-                <i class="fas fa-calendar-day fa-lg"></i>
-                <span class="ms-1">Message</span>
-            </a>
+    <footer class="footer border-top bg-body bg-opacity-50 text-light pt-4 pb-4">
+        <div class="container">
+        <!-- Горен ред с три колони -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <h5>About the platform</h5>
+                <p>
+                    JamSpot connects musicians and music fans. Discover events, create groups and share your passion for music!
+                </p>
+            </div>
+            <div class="col-md-4">
+                
+            </div>
+            <div class="col-md-4">
+                <h5>Contact us</h5>
+                <p>
+                    Do you have an idea for improvement? Contact us:
+                </p>
+                    <a class="btn btn-outline-primary" href="/Messages/Create">
+                        <i class="far fa-comment"></i> Send a message
+                </a>
+            </div>
         </div>
 
-        <div class="container text-center">
-            &copy; @DateTime.Now.Year - JamSpot
+        <!-- Долен ред с авторски права и социални мрежи -->
+        <div class="row text-center">
+            <div class="col-md-6">
+                &copy; @DateTime.Now.Year - JamSpot
+            </div>
+            <div class="col-md-6">
+                <a href="https://facebook.com" target="_blank" class="text-light me-2">
+                    <i class="fab fa-facebook fa-lg"></i>
+                </a>
+                <a href="https://twitter.com" target="_blank" class="text-light me-2">
+                    <i class="fab fa-twitter fa-lg"></i>
+                </a>
+                <a href="https://instagram.com" target="_blank" class="text-light">
+                    <i class="fab fa-instagram fa-lg"></i>
+                </a>
+            </div>
         </div>
-    </footer>
+    </div>
+</footer>
+
     @await RenderSectionAsync("Scripts", required: false)
 
     <!-- Bootstrap JS Bundle -->

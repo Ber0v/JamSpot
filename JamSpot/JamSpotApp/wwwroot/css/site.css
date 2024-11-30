@@ -18,5 +18,11 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  margin-bottom: 300px;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
