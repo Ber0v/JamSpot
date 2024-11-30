@@ -166,7 +166,7 @@ namespace JamSpotApp.Controllers
         [HttpGet]
         public async Task<IActionResult> AutoComplete(string query)
         {
-            if (string.IsNullOrEmpty(query))
+            if (string.IsNullOrEmpty(query) || query.Length < 1)
             {
                 return Json(new { users = new List<object>(), groups = new List<object>() });
             }
@@ -175,7 +175,6 @@ namespace JamSpotApp.Controllers
 
             try
             {
-                // Limit the number of results to enhance performance
                 int maxResults = 5;
 
                 var users = await _context.Users
@@ -186,14 +185,25 @@ namespace JamSpotApp.Controllers
                     .Take(maxResults)
                     .ToListAsync();
 
-                var groups = await _context.Groups
-                    .AsNoTracking()
-                    .Where(g => EF.Functions.Like(g.GroupName, $"%{query}%"))
-                    .Select(g => new { g.Id, g.GroupName, logoUrl = g.Logo })
-                    .Take(maxResults)
-                    .ToListAsync();
+                int remainingResults = maxResults - users.Count;
 
-                _logger.LogInformation("AutoComplete search completed successfully for query: {Query}", query);
+                var groups = new List<GroupResultViewModel>();
+                if (remainingResults > 0)
+                {
+                    groups = await _context.Groups
+                        .AsNoTracking()
+                        .Where(g => EF.Functions.Like(g.GroupName, $"%{query}%"))
+                        .Select(g => new GroupResultViewModel
+                        {
+                            Id = g.Id,
+                            GroupName = g.GroupName,
+                            LogoUrl = g.Logo
+                        })
+                        .Take(remainingResults)
+                        .ToListAsync();
+                }
+
+                _logger.LogInformation("AutoComplete returned {UserCount} users and {GroupCount} groups for query: {Query}", users.Count, groups.Count, query);
 
                 return Json(new { users = users, groups = groups });
             }

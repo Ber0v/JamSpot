@@ -36,12 +36,13 @@
         }
 
         <!-- Header Section -->
-        <div class="mt-4 p-5 custom-navbar text-white rounded">
+        <div class="mt-4 p-4 custom-navbar text-white rounded">
             <h1 class="d-flex justify-content-center">JamSpot</h1>
+            <h1 class="d-flex justify-content-center display-6">Discover connect jam</h1>
 
             <form asp-action="Search" asp-controller="Home" method="get" class="d-flex justify-content-center mt-3">
                 <div style="position: relative; width: 50%;">
-                    <input id="searchInput" class="form-control me-2" type="text" name="query" placeholder="Search for users or groups" autocomplete="off">
+                    <input id="searchInput" class="form-control me-2" type="text" name="query" placeholder="Search for users or groups" autocomplete="off" minlength="1">
                     <div id="dropdownMenu" class="dropdown-menu" style="display: none; position: absolute; width: 100%; z-index: 1000;"></div>
                 </div>
                 <button class="btn btn-outline-primary ms-2" type="submit">Search</button>
