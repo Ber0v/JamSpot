@@ -4,20 +4,20 @@
 
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
+
 <style>
     .log-link {
         color: #fff;
     }
     </style>
-<ul class="navbar-nav ms-auto ">
+<div class="navbar-nav ms-auto float-end">
     @if (SignInManager.IsSignedIn(User))
     {
-        <li class="nav-item dropdown">
-            @{
-                var user = await UserManager.GetUserAsync(User);
-                var profilePictureUrl = user?.ProfilePicture ?? "https://static.vecteezy.com/system/resources/thumbnails/046/300/546/small/avatar-user-profile-person-icon-gender-neutral-silhouette-profile-picture-suitable-for-social-media-profiles-icons-screensavers-free-png.png";
-                var isAdmin = await UserManager.IsInRoleAsync(user, "Admin");
-            }
+            var user = await UserManager.GetUserAsync(User);
+            var profilePictureUrl = user?.ProfilePicture ?? "https://static.vecteezy.com/system/resources/thumbnails/046/300/546/small/avatar-user-profile-person-icon-gender-neutral-silhouette-profile-picture-suitable-for-social-media-profiles-icons-screensavers-free-png.png";
+            var isAdmin = await UserManager.IsInRoleAsync(user, "Admin");
+            
+            <strong class="d-none d-sm-block align-content-center">@user.UserName</strong>
 
             <a href="#"
                class="nav-link dropdown-toggle d-flex align-items-center hidden-arrow"
@@ -49,7 +49,6 @@
                     </form>
                 </li>
             </ul>
-        </li>
     }
     else
     {
@@ -64,4 +63,4 @@
             </a>
         </li>
     }
-</ul>
+</div>
