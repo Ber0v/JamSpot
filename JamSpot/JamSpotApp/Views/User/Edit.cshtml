@@ -65,11 +65,12 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-outline-primary mt-3">Save Changes</button>
+            <a asp-area="Identity" asp-page="/Account/Manage/ChangePassword" class="btn btn-outline-secondary mt-3">Change Password</a>
             @if (Model != null)
             {
                 <a asp-controller="User" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger mt-3 ms-2">Delete</a>
             }
+            <button type="submit" class="btn btn-outline-primary mt-3">Save Changes</button>
         </form>
     </div>
 </div>
