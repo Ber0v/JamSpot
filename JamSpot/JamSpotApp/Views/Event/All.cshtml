@@ -10,7 +10,10 @@
         currentUserId = Guid.Empty;
     }
 }
-
+@{
+    string currentFilter = ViewData["CurrentFilter"] as string;
+    string currentSearchTerm = ViewData["SearchTerm"] as string;
+}
 <link rel="stylesheet" href="~/css/Event.css" asp-append-version="true" />
 
 <div class="container mt-3">
@@ -27,6 +30,28 @@
                        style="width: 200px;"
                 <input type="hidden" name="filter" value="@ViewData["CurrentFilter"]" />
                 <button class="btn btn-outline-primary" type="submit">Search</button>
+            </div>
+
+            <!-- Средна част: Филтърни бутони -->
+            <div class="d-flex align-items-center mx-3">
+                <div class="btn-group" role="group" aria-label="Filter events">
+                    <a href="@Url.Action("All", new { searchTerm = currentSearchTerm, filter = "all", pageNumber = 1 })"
+                       class="btn btn-outline-secondary @(currentFilter == "all" || string.IsNullOrEmpty(currentFilter) ? "active" : "")">
+                        All
+                    </a>
+                    <a href="@Url.Action("All", new { searchTerm = currentSearchTerm, filter = "free", pageNumber = 1 })"
+                       class="btn btn-outline-secondary @(currentFilter == "free" ? "active" : "")">
+                        Free
+                    </a>
+                    <a href="@Url.Action("All", new { searchTerm = currentSearchTerm, filter = "paid", pageNumber = 1 })"
+                       class="btn btn-outline-secondary @(currentFilter == "paid" ? "active" : "")">
+                        Paid
+                    </a>
+                    <a href="@Url.Action("All", new { searchTerm = currentSearchTerm, filter = "old", pageNumber = 1 })"
+                       class="btn btn-outline-secondary @(currentFilter == "past" ? "active" : "")">
+                        Old
+                    </a>
+                </div>
             </div>
 
             <!-- Дясна част: Бутон Create Group -->

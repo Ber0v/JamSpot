@@ -25,9 +25,10 @@ namespace JamSpotApp.Controllers
         // GET: /Event/All - Display all upcoming events with pagination
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All(string searchTerm, int pageNumber = 1)
+        public async Task<IActionResult> All(string searchTerm, string filter, int pageNumber = 1)
         {
             ViewData["SearchTerm"] = searchTerm;
+            ViewData["CurrentFilter"] = filter;
 
             int pageSize = 4; // Брой събития на страница
 
@@ -45,10 +46,29 @@ namespace JamSpotApp.Controllers
                     .AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
             }
 
-            // Започваме със заявка за всички предстоящи събития
+            // Започваме със заявка за всички събития
             IQueryable<Event> query = context.Events
-                .Include(e => e.Organizer)
-                .Where(e => e.Date >= DateTime.Today);
+                .Include(e => e.Organizer);
+
+            if (string.IsNullOrEmpty(filter) || filter.Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(e => e.Date >= DateTime.Today);
+            }
+            else if (filter.Equals("old", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(e => e.Date < DateTime.Today);
+            }
+            else
+            {
+                if (filter.Equals("free", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(e => e.Price == 0 && e.Date >= DateTime.Today);
+                }
+                else if (filter.Equals("paid", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(e => e.Price > 0 && e.Date >= DateTime.Today);
+                }
+            }
 
             // Ако има въведен searchTerm, филтрираме събитията по него
             if (!string.IsNullOrEmpty(searchTerm))
