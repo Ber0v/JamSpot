@@ -25,11 +25,12 @@ namespace JamSpotApp.Controllers
         // GET: /Event/All - Display all upcoming events with pagination
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All(int pageNumber = 1)
+        public async Task<IActionResult> All(string searchTerm, int pageNumber = 1)
         {
-            int pageSize = 4; // Number of events per page
+            ViewData["SearchTerm"] = searchTerm;
 
-            // Attempt to get the current user; may be null if not authenticated
+            int pageSize = 4; // Брой събития на страница
+
             var user = await _userManager.GetUserAsync(User);
 
             bool userHasGroup = false;
@@ -44,16 +45,24 @@ namespace JamSpotApp.Controllers
                     .AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
             }
 
-            // Total number of upcoming events
-            var totalEvents = await context.Events.CountAsync(e => e.Date >= DateTime.Today);
+            // Започваме със заявка за всички предстоящи събития
+            IQueryable<Event> query = context.Events
+                .Include(e => e.Organizer)
+                .Where(e => e.Date >= DateTime.Today);
 
-            // Calculate total pages
+            // Ако има въведен searchTerm, филтрираме събитията по него
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                string lowerSearchTerm = searchTerm.ToLower();
+                query = query.Where(e => e.EventName.ToLower().Contains(lowerSearchTerm)
+                                       || e.Organizer.UserName.ToLower().Contains(lowerSearchTerm));
+            }
+
+            var totalEvents = await query.CountAsync();
+
             int totalPages = (int)Math.Ceiling(totalEvents / (double)pageSize);
 
-            // Retrieve events for the current page
-            var events = await context.Events
-                .Include(e => e.Organizer)
-                .Where(e => e.Date >= DateTime.Today)
+            var events = await query
                 .OrderBy(e => e.Date)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -64,7 +73,7 @@ namespace JamSpotApp.Controllers
                     EventDescription = e.EventDescription,
                     Price = e.Price,
                     Organizer = e.Organizer.UserName,
-                    OrganizerId = e.Organizer.Id, // Added OrganizerId for authorization in view
+                    OrganizerId = e.Organizer.Id,
                     Location = e.Location,
                     Date = e.Date.ToString("dd.MM.yyyy"),
                     Hour = e.Hour.ToString("HH\\:mm"),
