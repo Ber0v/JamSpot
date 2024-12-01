@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JamSpotApp.Migrations
 {
     [DbContext(typeof(JamSpotDbContext))]
-    [Migration("20241128081939_UniqueEmailConstraint")]
-    partial class UniqueEmailConstraint
+    [Migration("20241201143623_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -128,6 +128,38 @@ namespace JamSpotApp.Migrations
                     b.HasIndex("CreatorId");
 
                     b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("JamSpotApp.Data.Models.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsFromAdmin")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Pinned")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("JamSpotApp.Data.Models.Post", b =>
@@ -473,6 +505,17 @@ namespace JamSpotApp.Migrations
                         .IsRequired();
 
                     b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("JamSpotApp.Data.Models.Message", b =>
+                {
+                    b.HasOne("JamSpotApp.Data.Models.User", "Username")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Username");
                 });
 
             modelBuilder.Entity("JamSpotApp.Data.Models.Post", b =>

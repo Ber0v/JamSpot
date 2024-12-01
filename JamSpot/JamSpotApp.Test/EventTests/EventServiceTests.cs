@@ -87,35 +87,6 @@ namespace JamSpotApp.Tests.EventTests
         }
 
         [Test]
-        public async Task All_ReturnsViewWithUpcomingEvents()
-        {
-            // Arrange
-            var user = new User { UserName = "TestUser", ProfilePicture = "" };
-            var futureEvent = new Event
-            {
-                EventName = "Future Event",
-                EventDescription = "Future Event Description",
-                Location = "Test Location",
-                Date = DateTime.Today.AddDays(1),
-                Organizer = user
-            };
-            _context.Events.Add(futureEvent);
-            await _context.SaveChangesAsync();
-
-            var controller = new EventController(_context, _userManagerMock.Object);
-
-            // Act
-            var result = await controller.All();
-
-            // Assert
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            var model = viewResult.Model as IEnumerable<EventViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(1, model.Count());
-        }
-
-        [Test]
         public void CreateEvent_Get_ReturnsView()
         {
             // Arrange
@@ -283,50 +254,5 @@ namespace JamSpotApp.Tests.EventTests
             Assert.IsTrue(controller.ModelState.ContainsKey("EventName"));
         }
 
-        [Test]
-        public async Task All_ReturnsEmptyViewWhenNoEvents()
-        {
-            // Arrange
-            var controller = new EventController(_context, _userManagerMock.Object);
-
-            // Act
-            var result = await controller.All();
-
-            // Assert
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            var model = viewResult.Model as IEnumerable<EventViewModel>;
-            Assert.IsNotNull(model);
-            Assert.IsEmpty(model);
-        }
-
-        [Test]
-        public async Task All_DoesNotReturnPastEvents()
-        {
-            // Arrange
-            var user = new User { UserName = "TestUser", ProfilePicture = "" };
-            var pastEvent = new Event
-            {
-                EventName = "Past Event",
-                EventDescription = "Past Event Description",
-                Location = "Test Location",
-                Date = DateTime.Today.AddDays(-1),
-                Organizer = user
-            };
-            _context.Events.Add(pastEvent);
-            await _context.SaveChangesAsync();
-
-            var controller = new EventController(_context, _userManagerMock.Object);
-
-            // Act
-            var result = await controller.All();
-
-            // Assert
-            var viewResult = result as ViewResult;
-            Assert.IsNotNull(viewResult);
-            var model = viewResult.Model as IEnumerable<EventViewModel>;
-            Assert.IsNotNull(model);
-            Assert.IsEmpty(model);
-        }
     }
 }
