@@ -25,8 +25,10 @@ namespace JamSpotApp.Controllers
         // GET: /Group/All - Display all groups with pagination
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All(int pageNumber = 1)
+        public async Task<IActionResult> All(string searchTerm, int pageNumber = 1)
         {
+            ViewData["SearchTerm"] = searchTerm;
+
             int pageSize = 10; // Брой групи на страница
 
             var user = await _userManager.GetUserAsync(User);
@@ -40,15 +42,18 @@ namespace JamSpotApp.Controllers
                 isMemberOfGroup = await _context.Groups.AnyAsync(g => g.Members.Any(m => m.Id == user.Id));
             }
 
-            // Total number of groups
-            var totalGroups = await _context.Groups.CountAsync();
+            IQueryable<Group> query = _context.Groups.Include(g => g.Creator);
 
-            // Calculate total pages
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(g => g.GroupName.Contains(searchTerm));
+            }
+
+            var totalGroups = await query.CountAsync();
+
             int totalPages = (int)Math.Ceiling(totalGroups / (double)pageSize);
 
-            // Retrieve groups for the current page
-            var groups = await _context.Groups
-                .Include(g => g.Creator)
+            var groups = await query
                 .OrderBy(g => g.GroupName)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
