@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - JamSpot
 
 on:
@@ -25,7 +22,7 @@ jobs:
         run: dotnet build JamSpot/JamSpotApp/JamSpotApp.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish JamSpot/JamSpotApp/JamSpotApp.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -47,13 +44,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+          
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F5CE7507D3FD4D92B7BF29C93A459888 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_0720BB6CC27540679B33242EBFD9FFAD }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_0BD4BA62D37045D9976D35AE84C2D9E6 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -61,5 +58,4 @@ jobs:
         with:
           app-name: 'JamSpot'
           slot-name: 'Production'
-          package: .
-          
+          package: ${{env.DOTNET_ROOT}}/myapp
