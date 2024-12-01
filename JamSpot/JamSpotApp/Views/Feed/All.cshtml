@@ -3,10 +3,29 @@
 <link rel="stylesheet" href="~/css/Feed.css" asp-append-version="true" />
 
 <div class="container mt-3">
-    @if (User?.Identity?.IsAuthenticated ?? false){
-        <a asp-action="CreatePost" class="btn btn-outline-primary float-end rounded-pill">Add Post</a>
-    }
-        <h2 class="text-center">All Posts</h2>
+
+    <h2 class="text-center mb-0">All Posts</h2>
+    <form method="get" class="mb-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <!-- Лява част: Поле за търсене и бутон Search -->
+            <div class="d-flex align-items-center">
+                <input type="text"
+                       name="SearchTerm"
+                       class="form-control me-2"
+                       placeholder="Search posts..."
+                       value="@ViewData["SearchTerm"]"
+                       style="width: 200px;"
+                <input type="hidden" name="filter" value="@ViewData["CurrentFilter"]" />
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+            </div>
+
+            <!-- Дясна част: Бутон Create Group -->
+            @if (User?.Identity?.IsAuthenticated ?? false)
+            {
+                <a asp-action="CreatePost" class="btn btn-outline-primary rounded-pill">Add Post</a>
+            }
+        </div>
+    </form>
     <hr />
 
     @if (TempData["SuccessMessage"] != null)

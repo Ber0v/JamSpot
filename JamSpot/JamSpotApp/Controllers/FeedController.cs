@@ -25,8 +25,10 @@ namespace JamSpotApp.Controllers
         // GET: /Feed/All - Display all posts
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> All(int pageNumber = 1)
+        public async Task<IActionResult> All(string searchTerm, int pageNumber = 1)
         {
+            ViewData["SearchTerm"] = searchTerm;
+
             const int PageSize = 6;
 
             var currentUser = await _userManager.GetUserAsync(User);
@@ -40,17 +42,26 @@ namespace JamSpotApp.Controllers
                     .FirstOrDefaultAsync(g => g.Members.Any(m => m.Id == currentUser.Id) || g.CreatorId == currentUser.Id);
             }
 
-            // Общо броя на постовете
-            int totalPosts = await _context.Posts.CountAsync();
+            // Започваме със заявка за всички постове
+            IQueryable<Post> query = _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.Group)
+                .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(p => p.Title.Contains(searchTerm)
+                          || p.User.UserName.Contains(searchTerm)
+                          || p.Group.GroupName.Contains(searchTerm));
+            }
+
+            int totalPosts = await query.CountAsync();
 
             // Изчисляване на общия брой страници
             int totalPages = (int)Math.Ceiling(totalPosts / (double)PageSize);
 
             // Вземане на постовете за текущата страница, сортирани по дата (най-новите първи)
-            var posts = await _context.Posts
-                .Include(p => p.User)
-                .Include(p => p.Group)
-                .AsNoTracking()
+            var posts = await query
                 .OrderByDescending(p => p.CreatedDate)
                 .Skip((pageNumber - 1) * PageSize)
                 .Take(PageSize)
