@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build-and-deploy:
     runs-on: windows-latest
@@ -25,28 +29,9 @@ jobs:
       - name: Publish with dotnet
         run: dotnet publish JamSpot/JamSpotApp/JamSpotApp.csproj -c Release -o ./publish
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: .net-app
-          path: ./publish
-
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-app
-
       - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: 304a9c07-fe1b-4d2a-8bf2-d103078aecc4
           tenant-id: 4a06d40c-e447-42be-baef-dd0421ed10bd
           subscription-id: 7e3ededd-c764-4f16-b516-e5b040ff83ad
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'JamSpot'
-          slot-name: 'Production'
-          package: ./publish
