@@ -48,7 +48,7 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: AlexBerov123@gmail.com
+          client-id: 304a9c07-fe1b-4d2a-8bf2-d103078aecc4
           tenant-id: 4a06d40c-e447-42be-baef-dd0421ed10bd
           subscription-id: 7e3ededd-c764-4f16-b516-e5b040ff83ad
 
