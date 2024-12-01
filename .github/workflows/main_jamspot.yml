@@ -22,7 +22,7 @@ jobs:
         run: dotnet build JamSpot/JamSpotApp/JamSpotApp.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish JamSpot/JamSpotApp/JamSpotApp.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish JamSpot/JamSpotApp/JamSpotApp.csproj -c Release -o ./publish
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -58,4 +58,4 @@ jobs:
         with:
           app-name: 'JamSpot'
           slot-name: 'Production'
-          package: ${{env.DOTNET_ROOT}}/myapp
+          package: ./publish
