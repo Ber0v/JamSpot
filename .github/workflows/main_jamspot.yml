@@ -49,7 +49,7 @@ jobs:
         uses: azure/login@v2
         with:
           client-id: AlexBerov123@gmail.com
-          tenant-id: BerovAle321
+          tenant-id: 4a06d40c-e447-42be-baef-dd0421ed10bd
           subscription-id: 7e3ededd-c764-4f16-b516-e5b040ff83ad
 
       - name: Deploy to Azure Web App
