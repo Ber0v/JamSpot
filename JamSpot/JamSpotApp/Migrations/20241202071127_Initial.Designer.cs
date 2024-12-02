@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JamSpotApp.Migrations
 {
     [DbContext(typeof(JamSpotDbContext))]
-    [Migration("20241201143623_Initial")]
+    [Migration("20241202071127_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
