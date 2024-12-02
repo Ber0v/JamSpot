@@ -100,12 +100,13 @@ namespace JamSpotApp.Data
                             .HasOne(p => p.User)
                             .WithMany(u => u.Posts)
                             .HasForeignKey(p => p.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Post>()
                 .HasOne(p => p.Group)
                 .WithMany(g => g.Posts)
-                .HasForeignKey(p => p.GroupId);
+                .HasForeignKey(p => p.GroupId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
     }
