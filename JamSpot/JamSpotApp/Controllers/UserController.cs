@@ -236,39 +236,99 @@ namespace JamSpotApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(DeleteUserViewModel model)
         {
-            var user = await _context.Users.FindAsync(model.Id);
-
-            if (user == null)
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                return NotFound();
+                try
+                {
+                    // Зареждане на потребителя със свързаните данни
+                    var user = await _context.Users
+                        .Include(u => u.Events)
+                        .Include(u => u.Posts)
+                        .Include(u => u.CreatedGroups)
+                            .ThenInclude(g => g.Members)
+                        .Include(u => u.CreatedGroups)
+                            .ThenInclude(g => g.Posts)
+                        .Include(u => u.MemberOfGroups)
+                            .ThenInclude(g => g.Members)
+                        .FirstOrDefaultAsync(u => u.Id == model.Id);
+
+                    if (user == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Проверка за авторизация: Само админ или собственикът на акаунта може да изтрие потребителя
+                    var currentUserId = _userManager.GetUserId(User);
+                    if (user.Id != Guid.Parse(currentUserId))
+                    {
+                        return Forbid();
+                    }
+
+                    // 1. Изтриване на постовете на потребителя
+                    if (user.Posts != null && user.Posts.Any())
+                    {
+                        _context.Posts.RemoveRange(user.Posts);
+                    }
+
+                    // 2. Изтриване на събитията, създадени от потребителя
+                    if (user.Events != null && user.Events.Any())
+                    {
+                        _context.Events.RemoveRange(user.Events);
+                    }
+
+                    // 3. Изтриване на групите, създадени от потребителя
+                    if (user.CreatedGroups != null && user.CreatedGroups.Any())
+                    {
+                        foreach (var group in user.CreatedGroups)
+                        {
+                            // Премахване на всички членове от групата
+                            if (group.Members != null && group.Members.Any())
+                            {
+                                group.Members.Clear();
+                            }
+
+                            // Изтриване на постовете на групата
+                            if (group.Posts != null && group.Posts.Any())
+                            {
+                                _context.Posts.RemoveRange(group.Posts);
+                            }
+
+                            _context.Groups.Remove(group);
+                        }
+                    }
+
+                    // 4. Премахване на потребителя от всички групи, в които е член
+                    if (user.MemberOfGroups != null && user.MemberOfGroups.Any())
+                    {
+                        foreach (var group in user.MemberOfGroups)
+                        {
+                            group.Members.Remove(user);
+                        }
+                    }
+
+                    // 5. Изтриване на самия потребител
+                    _context.Users.Remove(user);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+
+                    await _userManager.UpdateSecurityStampAsync(user);
+                    await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+
+                    _logger.LogInformation("User {UserId} deleted successfully.", user.Id);
+
+                    return RedirectToAction("Delete", "User");
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError(ex, "Error deleting user {UserId}.", model.Id);
+                    ModelState.AddModelError(string.Empty, "Error deleting the user.");
+                    return View(model);
+                }
             }
-
-            // Authorization: Only the user themselves can delete
-            var currentUserId = _userManager.GetUserId(User);
-            if (user.Id != Guid.Parse(currentUserId))
-            {
-                return Forbid();
-            }
-
-            try
-            {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-
-                await _userManager.UpdateSecurityStampAsync(user);
-                await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-
-                _logger.LogInformation("User {UserId} deleted successfully.", user.Id);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting user {UserId}.", user.Id);
-                ModelState.AddModelError(string.Empty, "Error deleting the user.");
-                return View(model);
-            }
-
-            return RedirectToAction("Delete", "User");
         }
+
 
         // Helper method to upload profile pictures
         private async Task<string> UploadLogoAsync(IFormFile file)
