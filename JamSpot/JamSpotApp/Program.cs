@@ -109,7 +109,7 @@ namespace JamSpotApp
                 {
                     var newAdmin = new User
                     {
-                        ProfilePicture = "~/Pictures/Admin.png",
+                        ProfilePicture = "/Pictures/Admin.jpg",
                         UserName = "Admin",
                         Email = adminEmail,
                         EmailConfirmed = true
