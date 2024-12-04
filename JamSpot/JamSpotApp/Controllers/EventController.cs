@@ -311,6 +311,11 @@ namespace JamSpotApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(DeleteEventViewModel model)
         {
+            if (model == null || model.Id == Guid.Empty)
+            {
+                return BadRequest("Invalid event data.");
+            }
+
             var ev = await context.Events
                 .Include(e => e.Organizer)
                 .FirstOrDefaultAsync(e => e.Id == model.Id);
@@ -321,7 +326,7 @@ namespace JamSpotApp.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            if (ev.Organizer.Id != currentUser.Id)
+            if (currentUser == null || ev.Organizer.Id != currentUser.Id)
             {
                 return Forbid();
             }
