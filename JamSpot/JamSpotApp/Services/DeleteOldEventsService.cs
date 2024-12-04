@@ -6,10 +6,12 @@ namespace JamSpotApp.Services
     public class DeleteOldEventsService : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly TimeSpan _delay;
 
-        public DeleteOldEventsService(IServiceProvider serviceProvider)
+        public DeleteOldEventsService(IServiceProvider serviceProvider, TimeSpan? delay = null)
         {
             _serviceProvider = serviceProvider;
+            _delay = delay ?? TimeSpan.FromDays(1);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -22,8 +24,14 @@ namespace JamSpotApp.Services
                     await DeletePastEventsAsync(context);
                 }
 
-                // Изчакване от 24 часа преди следващото изпълнение
-                await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+                try
+                {
+                    await Task.Delay(_delay, stoppingToken);
+                }
+                catch (TaskCanceledException)
+                {
+                    break;
+                }
             }
         }
 

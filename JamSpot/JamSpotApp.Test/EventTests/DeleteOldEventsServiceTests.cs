@@ -37,47 +37,72 @@ namespace JamSpotApp.Tests.EventTests
         }
 
         [Test]
-        public async Task DeleteOldEventsService_ShouldDeletePastEvents()
+        public async Task DeleteOldEventsService_ShouldDeleteOnlyPastEvents()
         {
-            // Arrange
+            // Arrange: Populate database with events
             using (var context = new JamSpotDbContext(_dbContextOptions))
             {
-                var pastEvent = new Event
-                {
-                    EventName = "Past Event",
-                    EventDescription = "This is a past event.",
-                    Location = "Location A",
-                    Date = DateTime.Today.AddDays(-2),
-                    Organizer = new User { UserName = "Organizer1", ProfilePicture = "Profile1.jpg" }
-                };
+                context.Events.AddRange(
+                    new Event
+                    {
+                        EventName = "Old Event",
+                        EventDescription = "This is an old event.",
+                        Location = "Location X",
+                        Date = DateTime.Today.AddDays(-40),
+                        Organizer = new User { UserName = "Organizer1" }
+                    },
+                    new Event
+                    {
+                        EventName = "Upcoming Event",
+                        EventDescription = "This is a future event.",
+                        Location = "Location Z",
+                        Date = DateTime.Today.AddDays(10),
+                        Organizer = new User { UserName = "Organizer2" }
+                    });
 
-                var futureEvent = new Event
-                {
-                    EventName = "Future Event",
-                    EventDescription = "This is a future event.",
-                    Location = "Location B",
-                    Date = DateTime.Today.AddDays(2),
-                    Organizer = new User { UserName = "Organizer2", ProfilePicture = "Profile2.jpg" }
-                };
-
-                context.Events.AddRange(pastEvent, futureEvent);
                 await context.SaveChangesAsync();
+            }
+
+            // Use a short delay for testing
+            var deleteOldEventsService = new DeleteOldEventsService(_serviceProviderMock.Object, TimeSpan.FromMilliseconds(100));
+
+            using var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.CancelAfter(200); // Allow enough time for one execution
+
+            // Act: Start the service
+            await deleteOldEventsService.StartAsync(cancellationTokenSource.Token);
+
+            // Assert: Validate the remaining events in the database
+            using (var context = new JamSpotDbContext(_dbContextOptions))
+            {
+                var remainingEvents = await context.Events.ToListAsync();
+                Assert.AreEqual(1, remainingEvents.Count, "Only future events should remain in the database.");
+                Assert.AreEqual("Upcoming Event", remainingEvents[0].EventName, "The future event should not be deleted.");
+            }
+        }
+
+        [Test]
+        public async Task DeleteOldEventsService_ShouldNotFailWithEmptyDatabase()
+        {
+            // Arrange: Ensure database is empty
+            using (var context = new JamSpotDbContext(_dbContextOptions))
+            {
+                Assert.AreEqual(0, await context.Events.CountAsync(), "Database should be empty at the start.");
             }
 
             var deleteOldEventsService = new DeleteOldEventsService(_serviceProviderMock.Object);
 
             using var cancellationTokenSource = new CancellationTokenSource();
-            cancellationTokenSource.CancelAfter(2000); // Increase timeout to 2 seconds
+            cancellationTokenSource.CancelAfter(100); // Small delay to allow single loop execution
 
-            // Act
+            // Act: Start the service
             await deleteOldEventsService.StartAsync(cancellationTokenSource.Token);
 
-            // Assert
+            // Assert: No exceptions or changes in an empty database
             using (var context = new JamSpotDbContext(_dbContextOptions))
             {
-                var events = await context.Events.ToListAsync();
-                Assert.AreEqual(1, events.Count);
-                Assert.AreEqual("Future Event", events[0].EventName);
+                var remainingEvents = await context.Events.ToListAsync();
+                Assert.AreEqual(0, remainingEvents.Count, "Database should remain empty.");
             }
         }
     }
