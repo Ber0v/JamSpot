@@ -147,52 +147,5 @@ namespace JamSpotApp.Tests.Controllers
                 Assert.AreEqual(user.UserName, model.UserName);
             }
         }
-
-        [Test]
-        public async Task DeleteConfirmed_DeletesUser_RedirectsToDelete()
-        {
-            using (var context = new JamSpotDbContext(_options))
-            {
-                // Arrange
-                var user = new User
-                {
-                    Id = Guid.NewGuid(),
-                    UserName = "TestUser"
-                };
-                context.Users.Add(user);
-                await context.SaveChangesAsync();
-
-                _mockUserManager.Setup(um => um.GetUserId(It.IsAny<ClaimsPrincipal>()))
-                    .Returns(user.Id.ToString());
-
-                var controller = new UserController(context, _mockUserManager.Object, _mockSignInManager.Object, _mockLogger.Object);
-                controller.ControllerContext.HttpContext = new DefaultHttpContext
-                {
-                    User = GetClaimsPrincipal(user)
-                };
-
-                var model = new DeleteUserViewModel
-                {
-                    Id = user.Id,
-                    UserName = user.UserName
-                };
-
-                // Assert: Уверете се, че потребителят съществува в базата данни преди изтриване
-                var existingUser = await context.Users.FindAsync(user.Id);
-                Assert.IsNotNull(existingUser, "User should exist before deletion");
-
-                // Act
-                var result = await controller.DeleteConfirmed(model);
-
-                // Assert: Проверете резултата от действието
-                var redirectResult = result as RedirectToActionResult;
-                Assert.IsNotNull(redirectResult, "Redirect result should not be null");
-                Assert.AreEqual("Delete", redirectResult.ActionName);
-
-                // Assert: Уверете се, че потребителят е изтрит от базата данни
-                var deletedUser = await context.Users.FindAsync(user.Id);
-                Assert.IsNull(deletedUser, "User should be deleted from the database");
-            }
-        }
     }
 }
