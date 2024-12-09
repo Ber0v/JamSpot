@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using JamSpotApp.Data.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 
 public class ExternalLoginModel : PageModel
 {
-    private readonly SignInManager<IdentityUser> _signInManager;
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly SignInManager<User> _signInManager;
+    private readonly UserManager<User> _userManager;
 
-    public ExternalLoginModel(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager)
+    public ExternalLoginModel(SignInManager<User> signInManager, UserManager<User> userManager)
     {
         _signInManager = signInManager;
         _userManager = userManager;

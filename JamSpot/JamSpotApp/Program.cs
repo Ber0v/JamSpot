@@ -27,19 +27,6 @@ namespace JamSpotApp
                 .AddSignInManager<SignInManager<User>>()
                 .AddUserManager<UserManager<User>>();
 
-            //builder.Services.AddAuthentication()
-            //    .AddGoogle(options =>
-            //    {
-            //        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-            //        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-            //    })
-            //    .AddApple(options =>
-            //    {
-            //        options.ClientId = builder.Configuration["Authentication:Apple:ClientId"];
-            //        options.KeyId = builder.Configuration["Authentication:Apple:KeyId"];
-            //        options.TeamId = builder.Configuration["Authentication:Apple:TeamId"];
-            //    });
-
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
@@ -51,7 +38,7 @@ namespace JamSpotApp
             UserRoles(app);
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            if (!app.Environment.IsDevelopment())
             {
                 // За 500 грешки
                 app.UseExceptionHandler("/Error");
