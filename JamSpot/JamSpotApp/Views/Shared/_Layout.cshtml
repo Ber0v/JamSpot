@@ -109,9 +109,17 @@
                 <p>
                     Do you have an idea for improvement? Contact us:
                 </p>
-                    <a class="btn btn-outline-primary" href="/Messages/Create">
-                        <i class="far fa-comment"></i> Send a message
-                </a>
+                    @if (User.Identity.IsAuthenticated)
+                     {
+                        <a class="btn btn-outline-primary" href="/Messages/Create">
+                            <i class="far fa-comment"></i> Send a message</a>
+                     }
+                    else
+                    {
+                        <a class="btn btn-outline-primary" asp-area="Identity" asp-page="/Account/Login">
+                            <i class="far fa-comment"></i> Send a message
+                        </a>
+                    }
             </div>
         </div>
 
